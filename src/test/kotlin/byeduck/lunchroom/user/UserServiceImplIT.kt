@@ -1,6 +1,6 @@
 package byeduck.lunchroom.user
 
-import org.junit.jupiter.api.Assertions.assertNotEquals
+import byeduck.lunchroom.user.services.UserService
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -14,12 +14,13 @@ internal class UserServiceImplIT {
     private lateinit var userService: UserService
 
     @Test
-    @DisplayName("After saving user with given support it should return true for check")
+    @DisplayName("After saving user with given password signIn should return saved user with token")
     internal fun basicLoginActionTest() {
         val nick = "testNick"
         val password = "testPassword"
-        val loggedInUser = userService.saveUser(nick, password)
-        assertNotEquals(password, loggedInUser.password)
-        assertTrue(userService.checkPassword(nick, password))
+        userService.signUp(nick, password)
+        val loggedInUser = userService.signIn(nick, password)
+        assertTrue(loggedInUser.user.id?.isNotEmpty()!!)
+        assertTrue(loggedInUser.token.isNotEmpty())
     }
 }

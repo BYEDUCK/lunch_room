@@ -14,7 +14,7 @@ internal class RoomRepositoryIT {
     private val testName: String = "test"
 
     @Autowired
-    private lateinit var roomsRepository: RoomsRepository;
+    private lateinit var roomsRepository: RoomsRepository
 
     @Test
     @DisplayName("Without any operation db should be empty")

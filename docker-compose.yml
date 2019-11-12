@@ -1,8 +1,8 @@
 version: '3'
 services:
-  lunchroom-server:
+  mongodb-server:
     image: 'mongo'
-  springboot-app:
+  lunchroom-app:
     build: .
     ports:
       - "48080:8080"

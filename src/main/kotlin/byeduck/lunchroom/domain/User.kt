@@ -11,6 +11,9 @@ data class User(
         var password: ByteArray,
         var salt: ByteArray
 ) {
+
+    constructor(nick: String, password: ByteArray, salt: ByteArray) : this(null, nick, password, salt)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

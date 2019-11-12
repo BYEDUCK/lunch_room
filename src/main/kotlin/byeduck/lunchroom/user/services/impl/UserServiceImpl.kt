@@ -1,7 +1,13 @@
-package byeduck.lunchroom.user
+package byeduck.lunchroom.user.services.impl
 
+import byeduck.lunchroom.domain.SignedInUser
 import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.repositories.UsersRepository
+import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
+import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
+import byeduck.lunchroom.user.exceptions.UserNotFoundException
+import byeduck.lunchroom.user.services.TokenService
+import byeduck.lunchroom.user.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -14,6 +20,8 @@ import javax.crypto.spec.PBEKeySpec
 class UserServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository,
+        @Autowired
+        private val tokenService: TokenService,
         @Value("\${password.hashing.algorithm}")
         private val hashingAlgorithm: String,
         @Value("\${password.hashing.iteration.count}")
@@ -24,22 +32,26 @@ class UserServiceImpl(
         private val saltSize: Int
 ) : UserService {
 
-    override fun checkPassword(nick: String, password: String): Boolean {
+    override fun signIn(nick: String, password: String): SignedInUser {
         val user = usersRepository.findByNick(nick)
-        var authenticated = false
-        user.ifPresentOrElse({
+        return user.map {
             val hashed = hashPasswordWithSalt(password, it.salt)
-            authenticated = hashed.contentEquals(it.password)
-        }, {
-            throw UserNotFoundException("User with nick \"$nick\" not found.")
-        })
-        return authenticated
+            if (hashed.contentEquals(it.password)) {
+                SignedInUser(it, tokenService.generateToken(it.nick))
+            } else {
+                throw InvalidCredentialsException()
+            }
+        }.orElseThrow { UserNotFoundException("User with nick \"$nick\" not found.") }
     }
 
-    override fun saveUser(nick: String, password: String): User {
+    override fun signUp(nick: String, password: String) {
+        val foundUser = usersRepository.findByNick(nick)
+        if (foundUser.isPresent) {
+            throw UserAlreadyExistsException()
+        }
         val salt = generateSalt()
         val hashed = hashPasswordWithSalt(password, salt)
-        return usersRepository.save(User(null, nick, hashed, salt))
+        usersRepository.save(User(nick, hashed, salt))
     }
 
     private fun generateSalt(): ByteArray {
