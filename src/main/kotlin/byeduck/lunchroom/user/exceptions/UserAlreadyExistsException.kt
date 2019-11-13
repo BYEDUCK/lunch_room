@@ -1,4 +1,3 @@
 package byeduck.lunchroom.user.exceptions
 
-class UserAlreadyExistsException : RuntimeException() {
-}
+class UserAlreadyExistsException : RuntimeException()

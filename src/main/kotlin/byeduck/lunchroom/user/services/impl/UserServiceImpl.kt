@@ -41,7 +41,7 @@ class UserServiceImpl(
             } else {
                 throw InvalidCredentialsException()
             }
-        }.orElseThrow { UserNotFoundException("User with nick \"$nick\" not found.") }
+        }.orElseThrow { UserNotFoundException(nick) }
     }
 
     override fun signUp(nick: String, password: String) {

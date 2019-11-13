@@ -1,4 +1,3 @@
 package byeduck.lunchroom.user.exceptions
 
-class InvalidCredentialsException : RuntimeException() {
-}
+class InvalidCredentialsException : RuntimeException()
