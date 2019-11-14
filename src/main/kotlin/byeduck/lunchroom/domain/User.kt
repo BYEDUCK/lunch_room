@@ -9,10 +9,12 @@ data class User(
         var id: String?,
         var nick: String,
         var password: ByteArray,
-        var salt: ByteArray
+        var salt: ByteArray,
+        var rooms: List<Room>
 ) {
 
-    constructor(nick: String, password: ByteArray, salt: ByteArray) : this(null, nick, password, salt)
+    constructor(nick: String, password: ByteArray, salt: ByteArray, rooms: List<Room>)
+            : this(null, nick, password, salt, rooms)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -24,6 +26,7 @@ data class User(
         if (nick != other.nick) return false
         if (!password.contentEquals(other.password)) return false
         if (!salt.contentEquals(other.salt)) return false
+        if (rooms != other.rooms) return false
 
         return true
     }
@@ -33,6 +36,8 @@ data class User(
         result = 31 * result + nick.hashCode()
         result = 31 * result + password.contentHashCode()
         result = 31 * result + salt.contentHashCode()
+        result = 31 * result + rooms.hashCode()
         return result
     }
+
 }

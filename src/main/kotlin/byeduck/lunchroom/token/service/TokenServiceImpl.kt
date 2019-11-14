@@ -1,6 +1,5 @@
-package byeduck.lunchroom.user.services.impl
+package byeduck.lunchroom.token.service
 
-import byeduck.lunchroom.user.services.TokenService
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm

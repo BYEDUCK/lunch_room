@@ -1,3 +1,5 @@
 package byeduck.lunchroom.user.exceptions
 
-class UserNotFoundException(nick: String) : ResourceNotFoundException("User", nick)
+import byeduck.lunchroom.error.exceptions.ResourceNotFoundException
+
+class UserNotFoundException : ResourceNotFoundException("User")

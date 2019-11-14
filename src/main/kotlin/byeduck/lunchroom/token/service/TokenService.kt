@@ -1,4 +1,4 @@
-package byeduck.lunchroom.user.services
+package byeduck.lunchroom.token.service
 
 interface TokenService {
     fun generateToken(subject: String): String

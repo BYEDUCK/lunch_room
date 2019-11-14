@@ -10,4 +10,7 @@ data class Room(
         var signDeadline: Long,
         var postDeadline: Long,
         var priorityDeadline: Long
-)
+) {
+    constructor(name: String, owner: String, signDeadline: Long, postDeadline: Long, priorityDeadline: Long)
+            : this(null, name, owner, signDeadline, postDeadline, priorityDeadline)
+}

@@ -1,13 +1,12 @@
-package byeduck.lunchroom.user.services.impl
+package byeduck.lunchroom.user.service
 
 import byeduck.lunchroom.domain.SignedInUser
 import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.repositories.UsersRepository
+import byeduck.lunchroom.token.service.TokenService
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
 import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
-import byeduck.lunchroom.user.services.TokenService
-import byeduck.lunchroom.user.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -17,7 +16,7 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
 @Service
-class UserServiceImpl(
+class UserAuthenticationServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository,
         @Autowired
@@ -30,7 +29,7 @@ class UserServiceImpl(
         private val hashingKeyLength: Int,
         @Value("\${password.hashing.salt.size}")
         private val saltSize: Int
-) : UserService {
+) : UserAuthenticationService {
 
     override fun signIn(nick: String, password: String): SignedInUser {
         val user = usersRepository.findByNick(nick)
@@ -41,7 +40,7 @@ class UserServiceImpl(
             } else {
                 throw InvalidCredentialsException()
             }
-        }.orElseThrow { UserNotFoundException(nick) }
+        }.orElseThrow { UserNotFoundException() }
     }
 
     override fun signUp(nick: String, password: String) {
@@ -51,7 +50,7 @@ class UserServiceImpl(
         }
         val salt = generateSalt()
         val hashed = hashPasswordWithSalt(password, salt)
-        usersRepository.save(User(nick, hashed, salt))
+        usersRepository.save(User(nick, hashed, salt, ArrayList()))
     }
 
     private fun generateSalt(): ByteArray {

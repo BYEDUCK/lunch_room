@@ -1,3 +1,5 @@
 package byeduck.lunchroom.user.exceptions
 
-class UserAlreadyExistsException : RuntimeException()
+import byeduck.lunchroom.error.exceptions.ResourceAlreadyExistsException
+
+class UserAlreadyExistsException : ResourceAlreadyExistsException("User")

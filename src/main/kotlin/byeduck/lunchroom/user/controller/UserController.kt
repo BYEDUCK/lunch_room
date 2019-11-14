@@ -1,7 +1,7 @@
 package byeduck.lunchroom.user.controller
 
 import byeduck.lunchroom.domain.SignedInUser
-import byeduck.lunchroom.user.services.UserService
+import byeduck.lunchroom.user.service.UserAuthenticationService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class UserController(
         @Autowired
-        private val userService: UserService
+        private val userService: UserAuthenticationService
 ) {
 
     @PostMapping("/user/signUp")

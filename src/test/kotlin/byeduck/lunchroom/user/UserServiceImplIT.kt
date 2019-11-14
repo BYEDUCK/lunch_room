@@ -2,7 +2,7 @@ package byeduck.lunchroom.user
 
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
 import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
-import byeduck.lunchroom.user.services.UserService
+import byeduck.lunchroom.user.service.UserAuthenticationService
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ import org.springframework.test.annotation.DirtiesContext
 internal class UserServiceImplIT {
 
     @Autowired
-    private lateinit var userService: UserService
+    private lateinit var userService: UserAuthenticationService
 
     @Test
     @DisplayName("After saving user with given password signIn should return saved user with token")
