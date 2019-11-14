@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:11
 MAINTAINER mateuszbajdak@gmail.com
 ENV SPRING_PROFILES_ACTIVE=docker
 RUN mkdir app
