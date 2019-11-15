@@ -38,7 +38,7 @@ class UserAuthenticationServiceImpl(
             if (hashed.contentEquals(it.password)) {
                 SignedInUser(it, tokenService.generateToken(it.nick))
             } else {
-                throw InvalidCredentialsException()
+                throw InvalidCredentialsException(it.nick)
             }
         }.orElseThrow { UserNotFoundException() }
     }
@@ -50,7 +50,7 @@ class UserAuthenticationServiceImpl(
         }
         val salt = generateSalt()
         val hashed = hashPasswordWithSalt(password, salt)
-        usersRepository.save(User(nick, hashed, salt, ArrayList()))
+        usersRepository.insert(User(nick, hashed, salt, ArrayList()))
     }
 
     private fun generateSalt(): ByteArray {

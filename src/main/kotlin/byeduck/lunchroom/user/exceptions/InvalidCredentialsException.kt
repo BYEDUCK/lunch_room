@@ -1,3 +1,3 @@
 package byeduck.lunchroom.user.exceptions
 
-class InvalidCredentialsException : RuntimeException()
+class InvalidCredentialsException(val nick: String) : RuntimeException("Invalid credentials for user $nick")

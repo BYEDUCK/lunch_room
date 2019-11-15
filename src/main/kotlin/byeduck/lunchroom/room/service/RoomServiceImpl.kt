@@ -23,9 +23,11 @@ class RoomServiceImpl(
             throw RoomAlreadyExistsException()
         }
         val owner = usersRepository.findByNick(ownerNick)
-        if (!owner.isPresent) {
-            throw UserNotFoundException()
-        }
-        return roomsRepository.save(Room(name, owner.get().id!!, signDeadline, postDeadline, priorityDeadline))
+        return owner.map {
+            val savedRoom = roomsRepository.insert(Room(name, owner.get().id!!, signDeadline, postDeadline, priorityDeadline))
+            it.rooms.add(savedRoom.id!!)
+            usersRepository.save(it)
+            return@map savedRoom
+        }.orElseThrow { UserNotFoundException() }
     }
 }
