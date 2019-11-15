@@ -5,6 +5,7 @@ import byeduck.lunchroom.repositories.UsersRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,6 +24,7 @@ internal class RoomServiceImplIT {
     private lateinit var usersRepository: UsersRepository
 
     @Test
+    @DisplayName("When adding new room - owner id should be set and room shall be added to owners rooms list")
     internal fun testAddNewRoomForTestUserValid() {
         usersRepository.save(testUser)
         val savedRoom = roomService.addRoom(testRoomName, testUserNick, 1L, 1L, 1L)

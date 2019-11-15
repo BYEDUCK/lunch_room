@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 
 @SpringBootTest
-internal class UserServiceImplIT {
+internal class UserAuthenticationServiceImplIT {
 
     @Autowired
     private lateinit var userService: UserAuthenticationService
