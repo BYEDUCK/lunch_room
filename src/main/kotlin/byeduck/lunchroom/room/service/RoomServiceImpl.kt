@@ -30,4 +30,11 @@ class RoomServiceImpl(
             return@map savedRoom
         }.orElseThrow { UserNotFoundException() }
     }
+
+    override fun getRoomsByUserId(userId: String): MutableList<Room> {
+        val user = usersRepository.findById(userId)
+        return user.map {
+            return@map roomsRepository.findAllById(it.rooms).toMutableList()
+        }.orElseThrow { UserNotFoundException() }
+    }
 }

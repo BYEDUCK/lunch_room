@@ -36,8 +36,9 @@ class ExceptionResolver {
     }
 
     @ExceptionHandler(value = [InvalidTokenException::class, JwtException::class])
-    fun handleInvalidToken(exception: Exception, request: WebRequest): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.message)
+    fun handleInvalidToken(exception: Exception, request: WebRequest): ResponseEntity<Any> {
+        logger.error("Invalid JWT token: {}", exception.message)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build<Any>()
     }
 
 }

@@ -1,13 +1,11 @@
 package byeduck.lunchroom.room.controller
 
+import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.room.service.RoomService
 import byeduck.lunchroom.token.ValidateToken
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class RoomController(
@@ -15,13 +13,22 @@ class RoomController(
         private val roomService: RoomService
 ) {
 
-    @PostMapping("/room")
+    @PostMapping("/rooms")
     @ValidateToken
-    fun addRoom(@RequestBody request: RoomCreateRequest, @RequestHeader requestHeaders: HttpHeaders): String? {
-        val added = roomService.addRoom(
+    fun addRoom(
+            @RequestBody request: RoomCreateRequest, @RequestHeader requestHeaders: HttpHeaders
+    ): Room {
+        return roomService.addRoom(
                 request.name, request.ownerNick, request.signDeadline, request.postDeadline, request.priorityDeadline
         )
-        return added.id
+    }
+
+    @GetMapping("/rooms")
+    @ValidateToken
+    fun findRoomsByUserId(
+            @RequestParam("userId") userId: String, @RequestHeader requestHeaders: HttpHeaders
+    ): List<Room> {
+        return roomService.getRoomsByUserId(userId)
     }
 
 }
