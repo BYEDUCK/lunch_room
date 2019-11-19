@@ -36,7 +36,7 @@ class UserAuthenticationServiceImpl(
         return user.map {
             val hashed = hashPasswordWithSalt(password, it.salt)
             if (hashed.contentEquals(it.password)) {
-                SignedInUser(it, tokenService.generateToken(it.nick))
+                SignedInUser(it.id, tokenService.generateToken(it.nick))
             } else {
                 throw InvalidCredentialsException(it.nick)
             }

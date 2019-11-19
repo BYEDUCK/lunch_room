@@ -5,6 +5,7 @@ import byeduck.lunchroom.room.service.RoomService
 import byeduck.lunchroom.token.ValidateToken
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -14,6 +15,7 @@ class RoomController(
 ) {
 
     @PostMapping("/rooms")
+    @ResponseStatus(HttpStatus.CREATED)
     @ValidateToken
     fun addRoom(
             @RequestBody request: RoomCreateRequest, @RequestHeader requestHeaders: HttpHeaders
@@ -28,7 +30,7 @@ class RoomController(
     fun findRoomsByUserId(
             @RequestParam("userId") userId: String, @RequestHeader requestHeaders: HttpHeaders
     ): List<Room> {
-        return roomService.getRoomsByUserId(userId)
+        return roomService.findRoomsByUserId(userId)
     }
 
 }
