@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-internal class TokenServiceImplTest {
+internal class TokenServiceImplIT {
 
     @Autowired
     private lateinit var tokenService: TokenService
