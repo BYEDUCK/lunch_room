@@ -1,5 +1,6 @@
 package byeduck.lunchroom.token.service
 
+import byeduck.lunchroom.error.exceptions.InvalidTokenException
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -27,10 +28,12 @@ class TokenServiceImpl(
                 .compact()
     }
 
-    override fun validateToken(token: String, nick: String): Boolean {
+    override fun validateToken(token: String, nick: String) {
         val claims = getAllClaimsForToken(token)
         val subject = claims.subject
-        return nick == subject && !isTokenExpired(token)
+        if (nick != subject || isTokenExpired(token)) {
+            throw InvalidTokenException()
+        }
     }
 
     private fun isTokenExpired(token: String): Boolean {

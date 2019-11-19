@@ -36,7 +36,9 @@ class TokenValidator(
     private fun validateAuthorizationHeaders(headers: HttpHeaders) {
         val userNick = headers.getFirst(NICK_HEADER_NAME)
         val token = headers.getFirst(TOKEN_HEADER_NAME)
-        if (userNick == null || token == null || !tokenService.validateToken(token, userNick)) {
+        if (userNick != null && token != null) {
+            tokenService.validateToken(token, userNick)
+        } else {
             throw InvalidTokenException()
         }
     }
