@@ -1,9 +1,9 @@
 package byeduck.lunchroom.user.service
 
-import byeduck.lunchroom.domain.SignedInUser
 import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.token.service.TokenService
+import byeduck.lunchroom.user.controller.SignedInUser
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
 import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException

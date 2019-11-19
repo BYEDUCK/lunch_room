@@ -1,4 +1,4 @@
-package byeduck.lunchroom.domain
+package byeduck.lunchroom.user.controller
 
 data class SignedInUser(
         val userId: String?,

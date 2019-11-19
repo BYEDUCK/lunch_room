@@ -1,6 +1,5 @@
 package byeduck.lunchroom.user.controller
 
-import byeduck.lunchroom.domain.SignedInUser
 import byeduck.lunchroom.user.service.UserAuthenticationService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus

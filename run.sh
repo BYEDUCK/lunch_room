@@ -5,37 +5,36 @@ let rebuild=0
 let deploy=0
 while test $# -gt 0; do
            case "$1" in
-                -it)
+                -it|--integration-test)
                     shift
                     doTests=1
-                    shift
                     ;;
-                -b)
+                -b|--build)
                     shift
                     rebuild=1
-                    shift
                     ;;
-                -d)
+                -d|--deploy)
                     shift
                     deploy=1
-                    shift
                     ;;
                 *)
                    echo "$1 is not a recognized flag!"
-                   return 1;
+                   break
                    ;;
           esac
   done
 
-  if test ${doTests} -eq 1 && ${rebuild} -eq 0; then
+  if test ${doTests} -eq 1 -a ${rebuild} -eq 0; then
        echo "Running integration tests..."
        mvn integration-test
-  elif test ${rebuild} -eq 1 && ${doTests} -eq 0; then
+  elif test ${rebuild} -eq 1 -a ${doTests} -eq 0; then
        echo "Rebuilding package..."
        mvn package
-  else
+  elif test ${rebuild} -eq 1 -a ${doTests} -eq 1; then
        echo "Running integration tests and rebuilding package..."
        mvn verify
+  else
+       echo "No configuration has been chosen"
   fi
 
   if test ${deploy} -eq 1; then
