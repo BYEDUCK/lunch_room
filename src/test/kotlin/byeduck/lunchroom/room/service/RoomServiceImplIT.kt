@@ -26,13 +26,13 @@ internal class RoomServiceImplIT {
     @Test
     @DisplayName("When adding new room - owner id should be set and room shall be added to owners rooms list")
     internal fun testAddNewRoomForTestUserValid() {
-        usersRepository.save(testUser)
-        val savedRoom = roomService.addRoom(testRoomName, testUserNick, 1L, 1L, 1L)
-        val roomOwner = usersRepository.findByNick(testUserNick).get()
+        val owner = usersRepository.save(testUser)
+        val savedRoom = roomService.addRoom(testRoomName, owner.id!!, 1L, 1L, 1L)
 
         assertNotNull(savedRoom.id)
-        assertNotNull(roomOwner.id)
-        assertEquals(savedRoom.owner, roomOwner.id)
-        assertThat(roomOwner.rooms).containsExactly(savedRoom.id)
+        assertEquals(savedRoom.owner, owner.id)
+
+        val updatedOwner = usersRepository.findById(owner.id!!)
+        assertThat(updatedOwner.get().rooms).containsExactly(savedRoom.id)
     }
 }

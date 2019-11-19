@@ -25,7 +25,7 @@ class RoomController(
             @RequestBody request: RoomCreateRequest, @RequestHeader requestHeaders: HttpHeaders
     ): Room {
         return roomService.addRoom(
-                request.name, request.ownerNick, request.signDeadline, request.postDeadline, request.priorityDeadline
+                request.name, request.ownerId, request.signDeadline, request.postDeadline, request.priorityDeadline
         )
     }
 
