@@ -9,4 +9,5 @@
 ## For build and deploy use _run.sh_ script<br/>Use:
 - -it : run integration tests
 - -b : rebuild app
+- -ut : build with unit tests
 - -d : deploy with docker (port 48080)

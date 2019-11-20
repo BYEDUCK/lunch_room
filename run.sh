@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 let doTests=0
+let doUnit=0
 let rebuild=0
 let deploy=0
 while test $# -gt 0; do
@@ -17,6 +18,10 @@ while test $# -gt 0; do
                     shift
                     deploy=1
                     ;;
+                -ut|--integration-test)
+                    shift
+                    doUnit=1
+                    ;;
                 *)
                    echo "$1 is not a recognized flag!"
                    break
@@ -29,7 +34,12 @@ while test $# -gt 0; do
        mvn integration-test
   elif test ${rebuild} -eq 1 -a ${doTests} -eq 0; then
        echo "Rebuilding package..."
-       mvn package
+       if test ${doUnit} -eq 1; then
+        echo "With unit tests..."
+        mvn package
+       else
+        mvn package -DskipTests
+       fi
   elif test ${rebuild} -eq 1 -a ${doTests} -eq 1; then
        echo "Running integration tests and rebuilding package..."
        mvn verify
