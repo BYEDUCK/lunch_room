@@ -49,5 +49,6 @@ while test $# -gt 0; do
 
   if test ${deploy} -eq 1; then
        echo "Deploying on docker..."
+       docker-compose down
        docker-compose up --build -d
   fi
