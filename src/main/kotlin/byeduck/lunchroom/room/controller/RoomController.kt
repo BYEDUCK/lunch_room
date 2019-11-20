@@ -29,7 +29,7 @@ class RoomController(
         )
     }
 
-    @GetMapping(value = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(value = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ValidateToken
     fun findRoomsByUserId(
             @RequestParam("userId") userId: String, @RequestHeader requestHeaders: HttpHeaders
