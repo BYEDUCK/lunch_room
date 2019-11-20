@@ -36,13 +36,13 @@ while test $# -gt 0; do
        echo "Rebuilding package..."
        if test ${doUnit} -eq 1; then
         echo "With unit tests..."
-        mvn package
+        mvn clean package
        else
-        mvn package -DskipTests
+        mvn clean package -DskipTests
        fi
   elif test ${rebuild} -eq 1 -a ${doTests} -eq 1; then
        echo "Running integration tests and rebuilding package..."
-       mvn verify
+       mvn clean verify
   else
        echo "No configuration has been chosen"
   fi

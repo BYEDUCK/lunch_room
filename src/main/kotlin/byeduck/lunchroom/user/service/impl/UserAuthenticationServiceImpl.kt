@@ -1,4 +1,4 @@
-package byeduck.lunchroom.user.service
+package byeduck.lunchroom.user.service.impl
 
 import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.repositories.UsersRepository
@@ -7,6 +7,7 @@ import byeduck.lunchroom.user.controller.SignedInUser
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
 import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
+import byeduck.lunchroom.user.service.UserAuthenticationService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
