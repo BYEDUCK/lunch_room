@@ -4,7 +4,6 @@ import byeduck.lunchroom.error.exceptions.InvalidTokenException
 import byeduck.lunchroom.error.exceptions.ResourceAlreadyExistsException
 import byeduck.lunchroom.error.exceptions.ResourceNotFoundException
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
-import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
 import io.jsonwebtoken.JwtException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,20 +24,15 @@ class ExceptionResolver {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.message)
     }
 
-    @ExceptionHandler(value = [ResourceAlreadyExistsException::class])
-    fun handleResourceCollision(exception: UserAlreadyExistsException, request: WebRequest): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.message)
-    }
-
-    @ExceptionHandler(value = [ResourceNotFoundException::class])
-    fun handleResourceNotFound(exception: Exception, request: WebRequest): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.message)
-    }
-
     @ExceptionHandler(value = [InvalidTokenException::class, JwtException::class])
     fun handleInvalidToken(exception: Exception, request: WebRequest): ResponseEntity<Any> {
         logger.error("Invalid JWT token: {}", exception.message)
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build<Any>()
+    }
+
+    @ExceptionHandler(value = [ResourceAlreadyExistsException::class, ResourceNotFoundException::class])
+    fun handleBadRequest(exception: Exception, request: WebRequest): ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.message)
     }
 
 }
