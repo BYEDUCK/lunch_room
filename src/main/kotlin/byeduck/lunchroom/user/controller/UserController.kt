@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @RestController
 @RequestMapping(value = ["/users"])
@@ -19,7 +20,7 @@ class UserController(
 
     @PostMapping(value = ["/signUp"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
-    fun signUp(@RequestBody signUpRequest: SignRequest) {
+    fun signUp(@Valid @RequestBody signUpRequest: SignRequest) {
         userAuthenticationService.signUp(signUpRequest.nick, signUpRequest.password)
     }
 
