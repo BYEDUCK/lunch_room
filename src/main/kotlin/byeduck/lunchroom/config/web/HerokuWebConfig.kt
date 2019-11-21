@@ -9,7 +9,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Profile("heroku")
 class HerokuWebConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**").allowedOrigins("https://BYEDUCK.github.io/lunch_room_front")
+        registry
+                .addMapping("/**")
+                .allowedOrigins("https://byeduck.github.io")
         super.addCorsMappings(registry)
     }
 }

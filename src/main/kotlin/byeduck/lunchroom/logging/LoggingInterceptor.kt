@@ -15,12 +15,25 @@ class LoggingInterceptor : HandlerInterceptorAdapter() {
         return super.preHandle(request, response, handler)
     }
 
+    override fun afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler: Any, ex: Exception?) {
+        logger.debug(parseResponse(response))
+        super.afterCompletion(request, response, handler, ex)
+    }
+
     private fun parseRequest(request: HttpServletRequest): String {
         val builder = StringBuilder("Request: {")
         builder.append("\n\tmethod : ${request.method}")
                 .append("\n\tcontextPath : ${request.contextPath}")
                 .append("\n\tqueryString : ${request.queryString}")
                 .append("\n\trequestUrl : ${request.requestURI}")
+                .append("\n\theaders : ${request.headerNames.toList().joinToString("\n")}")
+                .append("\n}")
+        return builder.toString()
+    }
+
+    private fun parseResponse(response: HttpServletResponse): String {
+        val builder = StringBuilder("Response: {")
+        builder.append("\n\theaders : ${response.headerNames.toList().joinToString("\n")}")
                 .append("\n}")
         return builder.toString()
     }
