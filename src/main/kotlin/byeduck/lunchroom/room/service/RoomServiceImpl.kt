@@ -15,16 +15,14 @@ class RoomServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository
 ) : RoomService {
-    override fun addRoom(
-            name: String, ownerId: String, signDeadline: Long, postDeadline: Long, priorityDeadline: Long
-    ): Room {
+    override fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room {
         val found = roomsRepository.findByName(name)
         if (found.isPresent) {
             throw RoomAlreadyExistsException()
         }
         val owner = usersRepository.findById(ownerId)
         return owner.map {
-            val savedRoom = roomsRepository.insert(Room(name, ownerId, signDeadline, postDeadline, priorityDeadline))
+            val savedRoom = roomsRepository.insert(Room(name, ownerId, deadlines.signDeadline, deadlines.postDeadline, deadlines.priorityDeadline))
             it.rooms.add(savedRoom.id!!)
             usersRepository.save(it)
             return@map savedRoom

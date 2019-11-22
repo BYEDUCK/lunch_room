@@ -27,7 +27,7 @@ internal class RoomServiceImplIT {
     @DisplayName("When adding new room - owner id should be set and room shall be added to owners rooms list")
     internal fun testAddNewRoomForTestUserValid() {
         val owner = usersRepository.save(testUser)
-        val savedRoom = roomService.addRoom(testRoomName, owner.id!!, 1L, 1L, 1L)
+        val savedRoom = roomService.addRoom(testRoomName, owner.id!!, Deadlines(1L, 2L, 3L))
 
         assertNotNull(savedRoom.id)
         assertEquals(savedRoom.owner, owner.id)

@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @RestController
 @RequestMapping(value = ["/rooms"], headers = [NICK_HEADER_NAME, TOKEN_HEADER_NAME])
@@ -22,11 +23,9 @@ class RoomController(
     @ResponseStatus(HttpStatus.CREATED)
     @ValidateToken
     fun addRoom(
-            @RequestBody request: RoomCreateRequest, @RequestHeader requestHeaders: HttpHeaders
+            @Valid @RequestBody request: RoomCreateRequest, @RequestHeader requestHeaders: HttpHeaders
     ): Room {
-        return roomService.addRoom(
-                request.name, request.ownerId, request.signDeadline, request.postDeadline, request.priorityDeadline
-        )
+        return roomService.addRoom(request.name, request.ownerId, request.deadlines)
     }
 
     @GetMapping(value = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
