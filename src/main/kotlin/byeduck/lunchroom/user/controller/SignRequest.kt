@@ -6,4 +6,6 @@ data class SignRequest(
         val nick: String,
         @PasswordConstraint
         val password: String
-)
+) {
+    constructor() : this("", "")
+}
