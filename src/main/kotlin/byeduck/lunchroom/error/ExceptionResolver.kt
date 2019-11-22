@@ -30,7 +30,7 @@ class ExceptionResolver {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build<Any>()
     }
 
-    @ExceptionHandler(value = [ResourceAlreadyExistsException::class, ResourceNotFoundException::class])
+    @ExceptionHandler(value = [ResourceAlreadyExistsException::class, ResourceNotFoundException::class, IllegalArgumentException::class])
     fun handleBadRequest(exception: Exception, request: WebRequest): ResponseEntity<String> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.message)
     }

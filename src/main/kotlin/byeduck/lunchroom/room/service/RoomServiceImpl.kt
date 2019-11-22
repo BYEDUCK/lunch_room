@@ -16,6 +16,9 @@ class RoomServiceImpl(
         private val usersRepository: UsersRepository
 ) : RoomService {
     override fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room {
+        if (name.isBlank()) {
+            throw IllegalArgumentException("Room name cannot be empty/blank")
+        }
         val found = roomsRepository.findByName(name)
         if (found.isPresent) {
             throw RoomAlreadyExistsException()
