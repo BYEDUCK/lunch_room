@@ -1,6 +1,7 @@
 package byeduck.lunchroom.room.service
 
 import byeduck.lunchroom.domain.Room
+import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
 import byeduck.lunchroom.repositories.RoomsRepository
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
@@ -48,6 +49,9 @@ class RoomServiceImpl(
         val room = roomOpt.get()
         val user = usersRepository.findById(userId)
         return user.map {
+            if (room.signDeadline < System.currentTimeMillis()) {
+                throw JoiningPastDeadlineException()
+            }
             if (user.get().rooms.contains(room.id)) {
                 return@map room
             } else {
