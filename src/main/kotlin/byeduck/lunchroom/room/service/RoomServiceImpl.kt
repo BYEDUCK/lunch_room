@@ -41,18 +41,21 @@ class RoomServiceImpl(
     }
 
     override fun joinRoom(name: String, userId: String): Room {
-        val user = usersRepository.findById(userId)
-        if (!user.isPresent) {
-            throw UserNotFoundException()
-        }
-        val room = roomsRepository.findByName(name)
-        if (!room.isPresent) {
+        val roomOpt = roomsRepository.findByName(name)
+        if (!roomOpt.isPresent) {
             throw RoomNotFoundException()
         }
-        if (room.get().users.contains(user.get())) {
-            return room.get()
-        }
-        room.get().users.add(user.get())
-        return roomsRepository.save(room.get())
+        val room = roomOpt.get()
+        val user = usersRepository.findById(userId)
+        return user.map {
+            if (user.get().rooms.contains(room.id)) {
+                return@map room
+            } else {
+                it.rooms.add(room.id!!)
+                usersRepository.save(it)
+                room.users.add(it)
+                return@map roomsRepository.save(room)
+            }
+        }.orElseThrow { UserNotFoundException() }
     }
 }
