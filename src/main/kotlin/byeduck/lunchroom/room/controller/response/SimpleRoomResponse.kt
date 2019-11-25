@@ -7,11 +7,11 @@ data class SimpleRoomResponse(
         val roomName: String,
         val signDeadline: Long,
         val postDeadline: Long,
-        val priorityDeadline: Long
+        val voteDeadline: Long
 ) {
     companion object {
         fun fromRoom(room: Room): SimpleRoomResponse {
-            return SimpleRoomResponse(room.id!!, room.name, room.signDeadline, room.postDeadline, room.priorityDeadline)
+            return SimpleRoomResponse(room.id!!, room.name, room.signDeadline, room.postDeadline, room.voteDeadline)
         }
     }
 }

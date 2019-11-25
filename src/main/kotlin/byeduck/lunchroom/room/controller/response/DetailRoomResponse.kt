@@ -8,12 +8,15 @@ class DetailRoomResponse(
         val owner: String,
         val signDeadline: Long,
         val postDeadline: Long,
-        val priorityDeadline: Long,
-        val users: MutableList<String>
+        val voteDeadline: Long,
+        val users: List<SimpleUser>
 ) {
     companion object {
         fun fromRoom(room: Room): DetailRoomResponse {
-            return DetailRoomResponse(room.id!!, room.name, room.owner, room.signDeadline, room.postDeadline, room.priorityDeadline, room.users)
+            return DetailRoomResponse(
+                    room.id!!, room.name, room.owner, room.signDeadline, room.postDeadline,
+                    room.voteDeadline, room.users.map { SimpleUser.fromUser(it) }
+            )
         }
     }
 }

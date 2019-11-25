@@ -24,12 +24,12 @@ class RoomServiceImpl(
         }
         val owner = usersRepository.findById(ownerId)
         return owner.map {
-            val room = Room(name, ownerId, deadlines.signDeadline, deadlines.postDeadline, deadlines.priorityDeadline)
-            room.users.add(it.id!!)
-            val savedRoom = roomsRepository.insert(room)
-            it.rooms.add(savedRoom.id!!)
+            val room = Room(name, ownerId, deadlines.signDeadline, deadlines.postDeadline, deadlines.voteDeadline)
+            val insertedRoom = roomsRepository.insert(room)
+            it.rooms.add(insertedRoom.id!!)
+            insertedRoom.users.add(it)
             usersRepository.save(it)
-            return@map savedRoom
+            return@map roomsRepository.save(insertedRoom)
         }.orElseThrow { UserNotFoundException() }
     }
 
@@ -49,7 +49,10 @@ class RoomServiceImpl(
         if (!room.isPresent) {
             throw RoomNotFoundException()
         }
-        room.get().users.add(userId)
+        if (room.get().users.contains(user.get())) {
+            return room.get()
+        }
+        room.get().users.add(user.get())
         return roomsRepository.save(room.get())
     }
 }
