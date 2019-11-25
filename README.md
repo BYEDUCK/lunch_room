@@ -1,6 +1,6 @@
 # LUNCHROOM<br/>backend REST API
 ## Technology stack:
-- Java 11
+- Java 8
 - Kotlin 1.3.50
 - SpringBoot 2.2.1.RELEASE
 - JUnit 5

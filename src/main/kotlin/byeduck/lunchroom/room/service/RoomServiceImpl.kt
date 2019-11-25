@@ -4,6 +4,7 @@ import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.repositories.RoomsRepository
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
+import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -15,17 +16,17 @@ class RoomServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository
 ) : RoomService {
+
     override fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room {
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Room name cannot be empty/blank")
-        }
         val found = roomsRepository.findByName(name)
         if (found.isPresent) {
             throw RoomAlreadyExistsException()
         }
         val owner = usersRepository.findById(ownerId)
         return owner.map {
-            val savedRoom = roomsRepository.insert(Room(name, ownerId, deadlines.signDeadline, deadlines.postDeadline, deadlines.priorityDeadline))
+            val room = Room(name, ownerId, deadlines.signDeadline, deadlines.postDeadline, deadlines.priorityDeadline)
+            room.users.add(it.id!!)
+            val savedRoom = roomsRepository.insert(room)
             it.rooms.add(savedRoom.id!!)
             usersRepository.save(it)
             return@map savedRoom
@@ -37,5 +38,18 @@ class RoomServiceImpl(
         return user.map {
             return@map roomsRepository.findAllById(it.rooms).toMutableList()
         }.orElseThrow { UserNotFoundException() }
+    }
+
+    override fun joinRoom(name: String, userId: String): Room {
+        val user = usersRepository.findById(userId)
+        if (!user.isPresent) {
+            throw UserNotFoundException()
+        }
+        val room = roomsRepository.findByName(name)
+        if (!room.isPresent) {
+            throw RoomNotFoundException()
+        }
+        room.get().users.add(userId)
+        return roomsRepository.save(room.get())
     }
 }

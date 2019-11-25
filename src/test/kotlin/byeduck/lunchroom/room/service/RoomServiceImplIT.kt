@@ -34,5 +34,6 @@ internal class RoomServiceImplIT {
 
         val updatedOwner = usersRepository.findById(owner.id!!)
         assertThat(updatedOwner.get().rooms).containsExactly(savedRoom.id)
+        assertThat(savedRoom.users).containsExactly(updatedOwner.get().id)
     }
 }

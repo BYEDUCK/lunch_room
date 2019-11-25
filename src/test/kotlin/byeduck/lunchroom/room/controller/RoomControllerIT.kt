@@ -1,6 +1,7 @@
 package byeduck.lunchroom.room.controller
 
 import byeduck.lunchroom.error.exceptions.InvalidTokenException
+import byeduck.lunchroom.room.controller.request.CreateRoomRequest
 import byeduck.lunchroom.room.service.Deadlines
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -23,7 +24,7 @@ internal class RoomControllerIT {
             val httpHeaders = HttpHeaders()
             httpHeaders.contentType = MediaType.APPLICATION_JSON
             roomController.addRoom(
-                    RoomCreateRequest("test", "test", Deadlines(1L, 2L, 3L)),
+                    CreateRoomRequest("test", "test", Deadlines(1L, 2L, 3L)),
                     httpHeaders
             )
         }

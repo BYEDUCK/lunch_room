@@ -3,7 +3,7 @@ package byeduck.lunchroom.user.service.impl
 import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.token.service.TokenService
-import byeduck.lunchroom.user.controller.SignedInUser
+import byeduck.lunchroom.user.controller.SignResponse
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
 import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
@@ -32,12 +32,12 @@ class UserAuthenticationServiceImpl(
         private val saltSize: Int
 ) : UserAuthenticationService {
 
-    override fun signIn(nick: String, password: String): SignedInUser {
+    override fun signIn(nick: String, password: String): SignResponse {
         val user = usersRepository.findByNick(nick)
         return user.map {
             val hashed = hashPasswordWithSalt(password, it.salt)
             if (hashed.contentEquals(it.password)) {
-                SignedInUser(it.id, tokenService.generateToken(it.nick))
+                SignResponse(it.id, tokenService.generateToken(it.nick))
             } else {
                 throw InvalidCredentialsException(it.nick)
             }

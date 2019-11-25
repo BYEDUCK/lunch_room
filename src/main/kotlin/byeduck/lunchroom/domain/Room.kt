@@ -9,8 +9,9 @@ data class Room(
         var owner: String,
         var signDeadline: Long,
         var postDeadline: Long,
-        var priorityDeadline: Long
+        var priorityDeadline: Long,
+        var users: MutableList<String>
 ) {
     constructor(name: String, owner: String, signDeadline: Long, postDeadline: Long, priorityDeadline: Long)
-            : this(null, name, owner, signDeadline, postDeadline, priorityDeadline)
+            : this(null, name, owner, signDeadline, postDeadline, priorityDeadline, emptyList<String>().toMutableList())
 }

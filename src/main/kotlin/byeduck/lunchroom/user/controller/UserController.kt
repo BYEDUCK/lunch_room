@@ -25,7 +25,7 @@ class UserController(
     }
 
     @PostMapping(value = ["signIn"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun signIn(@RequestBody signRequest: SignRequest): SignedInUser {
+    fun signIn(@RequestBody signRequest: SignRequest): SignResponse {
         return userAuthenticationService.signIn(signRequest.nick, signRequest.password)
     }
 

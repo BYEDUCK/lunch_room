@@ -1,5 +1,6 @@
-package byeduck.lunchroom.room.validator
+package byeduck.lunchroom.validators.constraints
 
+import byeduck.lunchroom.validators.DeadlinesConstraintValidator
 import javax.validation.Constraint
 import javax.validation.Payload
 import kotlin.reflect.KClass

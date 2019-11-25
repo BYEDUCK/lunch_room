@@ -1,6 +1,7 @@
-package byeduck.lunchroom.room.validator
+package byeduck.lunchroom.validators
 
 import byeduck.lunchroom.room.service.Deadlines
+import byeduck.lunchroom.validators.constraints.DeadlinesConstraint
 import javax.validation.ConstraintValidator
 import javax.validation.ConstraintValidatorContext
 

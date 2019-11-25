@@ -1,5 +1,6 @@
-package byeduck.lunchroom.user.service.validator
+package byeduck.lunchroom.validators
 
+import byeduck.lunchroom.validators.constraints.PasswordConstraint
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import javax.validation.ConstraintValidator

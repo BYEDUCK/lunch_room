@@ -2,7 +2,10 @@ package byeduck.lunchroom.room.controller
 
 import byeduck.lunchroom.NICK_HEADER_NAME
 import byeduck.lunchroom.TOKEN_HEADER_NAME
-import byeduck.lunchroom.domain.Room
+import byeduck.lunchroom.room.controller.request.CreateRoomRequest
+import byeduck.lunchroom.room.controller.request.JoinRoomRequest
+import byeduck.lunchroom.room.controller.response.DetailRoomResponse
+import byeduck.lunchroom.room.controller.response.SimpleRoomResponse
 import byeduck.lunchroom.room.service.RoomService
 import byeduck.lunchroom.token.ValidateToken
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,17 +26,23 @@ class RoomController(
     @ResponseStatus(HttpStatus.CREATED)
     @ValidateToken
     fun addRoom(
-            @Valid @RequestBody request: RoomCreateRequest, @RequestHeader requestHeaders: HttpHeaders
-    ): Room {
-        return roomService.addRoom(request.name, request.ownerId, request.deadlines)
+            @Valid @RequestBody request: CreateRoomRequest, @RequestHeader requestHeaders: HttpHeaders
+    ): SimpleRoomResponse {
+        return SimpleRoomResponse.fromRoom(roomService.addRoom(request.name, request.ownerId, request.deadlines))
     }
 
     @GetMapping(value = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ValidateToken
     fun findRoomsByUserId(
             @RequestParam("userId") userId: String, @RequestHeader requestHeaders: HttpHeaders
-    ): List<Room> {
-        return roomService.findRoomsByUserId(userId)
+    ): List<SimpleRoomResponse> {
+        return roomService.findRoomsByUserId(userId).map { SimpleRoomResponse.fromRoom(it) }
+    }
+
+    @PostMapping(value = ["join"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
+    fun joinRoom(@Valid @RequestBody request: JoinRoomRequest, @RequestHeader requestHeaders: HttpHeaders): DetailRoomResponse {
+        return DetailRoomResponse.fromRoom(roomService.joinRoom(request.roomName, request.userId))
     }
 
 }
