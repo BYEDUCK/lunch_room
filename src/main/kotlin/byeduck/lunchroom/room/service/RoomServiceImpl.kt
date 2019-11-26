@@ -9,6 +9,7 @@ import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class RoomServiceImpl(
@@ -21,7 +22,7 @@ class RoomServiceImpl(
     override fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room {
         val found = roomsRepository.findByName(name)
         if (found.isPresent) {
-            throw RoomAlreadyExistsException()
+            throw RoomAlreadyExistsException(found.get().name)
         }
         val owner = usersRepository.findById(ownerId)
         return owner.map {
@@ -31,26 +32,26 @@ class RoomServiceImpl(
             insertedRoom.users.add(it)
             usersRepository.save(it)
             return@map roomsRepository.save(insertedRoom)
-        }.orElseThrow { UserNotFoundException() }
+        }.orElseThrow { UserNotFoundException(ownerId) }
     }
 
     override fun findRoomsByUserId(userId: String): MutableList<Room> {
         val user = usersRepository.findById(userId)
         return user.map {
-            return@map roomsRepository.findAllById(it.rooms).toMutableList()
-        }.orElseThrow { UserNotFoundException() }
+            roomsRepository.findAllById(it.rooms).toMutableList()
+        }.orElseThrow { UserNotFoundException(userId) }
     }
 
     override fun joinRoom(name: String, userId: String): Room {
         val roomOpt = roomsRepository.findByName(name)
         if (!roomOpt.isPresent) {
-            throw RoomNotFoundException()
+            throw RoomNotFoundException(name)
         }
         val room = roomOpt.get()
         val user = usersRepository.findById(userId)
         return user.map {
             if (room.signDeadline < System.currentTimeMillis()) {
-                throw JoiningPastDeadlineException()
+                throw JoiningPastDeadlineException(Date(room.signDeadline).toString())
             }
             if (user.get().rooms.contains(room.id)) {
                 return@map room
@@ -60,6 +61,6 @@ class RoomServiceImpl(
                 room.users.add(it)
                 return@map roomsRepository.save(room)
             }
-        }.orElseThrow { UserNotFoundException() }
+        }.orElseThrow { UserNotFoundException(userId) }
     }
 }

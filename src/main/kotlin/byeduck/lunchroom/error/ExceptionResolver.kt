@@ -1,6 +1,8 @@
 package byeduck.lunchroom.error
 
+import byeduck.lunchroom.ErrorCodes
 import byeduck.lunchroom.error.exceptions.InvalidTokenException
+import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
 import byeduck.lunchroom.error.exceptions.ResourceAlreadyExistsException
 import byeduck.lunchroom.error.exceptions.ResourceNotFoundException
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
@@ -19,20 +21,26 @@ class ExceptionResolver {
     private val logger: Logger = LoggerFactory.getLogger(ExceptionResolver::class.java)
 
     @ExceptionHandler(value = [InvalidCredentialsException::class])
-    fun handleInvalidCredentials(exception: Exception, request: WebRequest): ResponseEntity<String> {
+    fun handleInvalidCredentials(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
         logger.error("Invalid credentials for user {}", (exception as InvalidCredentialsException).nick)
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.message)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorMessage(ErrorCodes.INVALID_CREDENTIALS, exception.message))
     }
 
     @ExceptionHandler(value = [InvalidTokenException::class, JwtException::class])
-    fun handleInvalidToken(exception: Exception, request: WebRequest): ResponseEntity<Any> {
+    fun handleInvalidToken(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
         logger.error("Invalid JWT token: {}", exception.message)
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build<Any>()
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorMessage(ErrorCodes.INVALID_TOKEN, ""))
     }
 
-    @ExceptionHandler(value = [ResourceAlreadyExistsException::class, ResourceNotFoundException::class, IllegalArgumentException::class])
-    fun handleBadRequest(exception: Exception, request: WebRequest): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.message)
+    @ExceptionHandler(value = [IllegalArgumentException::class])
+    fun handleBadRequest(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
+        var errorCode = ErrorCodes.GENERAL
+        when (exception) {
+            is ResourceAlreadyExistsException -> errorCode = ErrorCodes.RESOURCE_ALREADY_EXISTS
+            is ResourceNotFoundException -> errorCode = ErrorCodes.RESOURCE_NOT_FOUND
+            is JoiningPastDeadlineException -> errorCode = ErrorCodes.PAST_DEADLINE
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorMessage(errorCode, exception.message))
     }
 
 }

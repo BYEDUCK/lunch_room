@@ -1,3 +1,3 @@
 package byeduck.lunchroom.error.exceptions
 
-class JoiningPastDeadlineException : IllegalArgumentException("You tried to join room after sign deadline")
+class JoiningPastDeadlineException(deadlineDate: String) : IllegalArgumentException("You tried to join room after sign deadline: $deadlineDate")

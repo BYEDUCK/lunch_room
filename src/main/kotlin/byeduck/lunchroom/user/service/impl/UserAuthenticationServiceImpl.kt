@@ -41,13 +41,13 @@ class UserAuthenticationServiceImpl(
             } else {
                 throw InvalidCredentialsException(it.nick)
             }
-        }.orElseThrow { UserNotFoundException() }
+        }.orElseThrow { UserNotFoundException(nick) }
     }
 
     override fun signUp(nick: String, password: String) {
         val foundUser = usersRepository.findByNick(nick)
         if (foundUser.isPresent) {
-            throw UserAlreadyExistsException()
+            throw UserAlreadyExistsException(foundUser.get().nick)
         }
         val salt = generateSalt()
         val hashed = hashPasswordWithSalt(password, salt)
