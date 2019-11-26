@@ -12,6 +12,7 @@ class LocalWebConfig : WebMvcConfigurer {
         registry
                 .addMapping("/**")
                 .allowedOrigins("http://localhost:4200")
+                .allowedMethods("GET", "POST", "DELETE")
         super.addCorsMappings(registry)
     }
 }

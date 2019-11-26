@@ -36,6 +36,10 @@ class TokenServiceImpl(
         }
     }
 
+    override fun getSubject(token: String): String {
+        return getAllClaimsForToken(token).subject
+    }
+
     private fun isTokenExpired(token: String): Boolean {
         val claims = getAllClaimsForToken(token)
         return claims.expiration.before(Date())

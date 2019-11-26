@@ -1,10 +1,7 @@
 package byeduck.lunchroom.error
 
 import byeduck.lunchroom.ErrorCodes
-import byeduck.lunchroom.error.exceptions.InvalidTokenException
-import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
-import byeduck.lunchroom.error.exceptions.ResourceAlreadyExistsException
-import byeduck.lunchroom.error.exceptions.ResourceNotFoundException
+import byeduck.lunchroom.error.exceptions.*
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
 import io.jsonwebtoken.JwtException
 import org.slf4j.Logger
@@ -23,13 +20,17 @@ class ExceptionResolver {
     @ExceptionHandler(value = [InvalidCredentialsException::class])
     fun handleInvalidCredentials(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
         logger.error("Invalid credentials for user {}", (exception as InvalidCredentialsException).nick)
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorMessage(ErrorCodes.INVALID_CREDENTIALS, exception.message))
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorMessage(ErrorCodes.INVALID_CREDENTIALS, exception.message))
     }
 
     @ExceptionHandler(value = [InvalidTokenException::class, JwtException::class])
     fun handleInvalidToken(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
         logger.error("Invalid JWT token: {}", exception.message)
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorMessage(ErrorCodes.INVALID_TOKEN, ""))
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorMessage(ErrorCodes.INVALID_TOKEN, ""))
     }
 
     @ExceptionHandler(value = [IllegalArgumentException::class])
@@ -40,7 +41,16 @@ class ExceptionResolver {
             is ResourceNotFoundException -> errorCode = ErrorCodes.RESOURCE_NOT_FOUND
             is JoiningPastDeadlineException -> errorCode = ErrorCodes.PAST_DEADLINE
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorMessage(errorCode, exception.message))
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorMessage(errorCode, exception.message))
+    }
+
+    @ExceptionHandler(value = [UnauthorizedException::class])
+    fun handleUnauthorizedRequest(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ErrorMessage(ErrorCodes.UNAUTHORIZED, exception.message))
     }
 
 }

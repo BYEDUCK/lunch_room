@@ -7,6 +7,7 @@ class ErrorCodes {
         const val INVALID_TOKEN = 30
         const val INVALID_CREDENTIALS = 40
         const val PAST_DEADLINE = 50
+        const val UNAUTHORIZED = 60
         const val GENERAL = 100
     }
 }

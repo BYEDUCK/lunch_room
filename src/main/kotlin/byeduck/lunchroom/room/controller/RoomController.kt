@@ -41,8 +41,21 @@ class RoomController(
 
     @PostMapping(value = ["join"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ValidateToken
-    fun joinRoom(@Valid @RequestBody request: JoinRoomRequest, @RequestHeader requestHeaders: HttpHeaders): DetailRoomResponse {
+    fun joinRoom(
+            @Valid @RequestBody request: JoinRoomRequest,
+            @RequestHeader requestHeaders: HttpHeaders
+    ): DetailRoomResponse {
         return DetailRoomResponse.fromRoom(roomService.joinRoom(request.roomName, request.userId))
+    }
+
+    @DeleteMapping(value = ["del/{id}"])
+    @ValidateToken
+    fun deleteRoom(
+            @RequestHeader requestHeaders: HttpHeaders,
+            @RequestHeader(TOKEN_HEADER_NAME) token: String,
+            @PathVariable("id") roomId: String
+    ) {
+        roomService.deleteRoom(roomId, token)
     }
 
 }

@@ -2,10 +2,12 @@ package byeduck.lunchroom.room.service
 
 import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
+import byeduck.lunchroom.error.exceptions.UnauthorizedException
 import byeduck.lunchroom.repositories.RoomsRepository
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
 import byeduck.lunchroom.room.exceptions.RoomNotFoundException
+import byeduck.lunchroom.token.service.TokenService
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -16,7 +18,9 @@ class RoomServiceImpl(
         @Autowired
         private val roomsRepository: RoomsRepository,
         @Autowired
-        private val usersRepository: UsersRepository
+        private val usersRepository: UsersRepository,
+        @Autowired
+        private val tokenService: TokenService
 ) : RoomService {
 
     override fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room {
@@ -43,11 +47,8 @@ class RoomServiceImpl(
     }
 
     override fun joinRoom(name: String, userId: String): Room {
-        val roomOpt = roomsRepository.findByName(name)
-        if (!roomOpt.isPresent) {
-            throw RoomNotFoundException(name)
-        }
-        val room = roomOpt.get()
+        val room = roomsRepository.findByName(name)
+                .orElseThrow { RoomNotFoundException(name) }
         val user = usersRepository.findById(userId)
         return user.map {
             if (room.signDeadline < System.currentTimeMillis()) {
@@ -62,5 +63,21 @@ class RoomServiceImpl(
                 return@map roomsRepository.save(room)
             }
         }.orElseThrow { UserNotFoundException(userId) }
+    }
+
+    override fun deleteRoom(id: String, token: String) {
+        val room = roomsRepository.findById(id)
+                .orElseThrow { throw RoomNotFoundException(id) }
+        val userNick = tokenService.getSubject(token)
+        val user = usersRepository.findByNick(userNick)
+                .orElseThrow { UserNotFoundException(userNick) }
+        if (user.id!! != room.owner) {
+            throw UnauthorizedException()
+        }
+        room.users.forEach {
+            it.rooms.remove(room.id)
+            usersRepository.save(it)
+        }
+        roomsRepository.delete(room)
     }
 }

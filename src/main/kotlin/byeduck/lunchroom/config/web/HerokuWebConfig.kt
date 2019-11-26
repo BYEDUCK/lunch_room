@@ -14,6 +14,7 @@ class HerokuWebConfig : WebMvcConfigurer {
         registry
                 .addMapping("/**")
                 .allowedOrigins("https://byeduck.github.io")
+                .allowedMethods("GET", "POST", "DELETE")
         super.addCorsMappings(registry)
     }
 }
