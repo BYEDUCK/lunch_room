@@ -4,6 +4,7 @@ import byeduck.lunchroom.NICK_HEADER_NAME
 import byeduck.lunchroom.TOKEN_HEADER_NAME
 import byeduck.lunchroom.room.controller.request.CreateRoomRequest
 import byeduck.lunchroom.room.controller.request.JoinRoomRequest
+import byeduck.lunchroom.room.controller.request.UpdateRoomRequest
 import byeduck.lunchroom.room.controller.response.DetailRoomResponse
 import byeduck.lunchroom.room.controller.response.SimpleRoomResponse
 import byeduck.lunchroom.room.service.RoomService
@@ -56,6 +57,15 @@ class RoomController(
             @PathVariable("id") roomId: String
     ) {
         roomService.deleteRoom(roomId, token)
+    }
+
+    @PutMapping(value = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun updateRoom(
+            @Valid @RequestBody request: UpdateRoomRequest,
+            @RequestHeader requestHeaders: HttpHeaders,
+            @RequestHeader(TOKEN_HEADER_NAME) token: String
+    ): SimpleRoomResponse {
+        return SimpleRoomResponse.fromRoom(roomService.updateRoom(request.roomName, token, request.deadlines))
     }
 
 }

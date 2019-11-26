@@ -68,16 +68,30 @@ class RoomServiceImpl(
     override fun deleteRoom(id: String, token: String) {
         val room = roomsRepository.findById(id)
                 .orElseThrow { throw RoomNotFoundException(id) }
-        val userNick = tokenService.getSubject(token)
-        val user = usersRepository.findByNick(userNick)
-                .orElseThrow { UserNotFoundException(userNick) }
-        if (user.id!! != room.owner) {
-            throw UnauthorizedException()
-        }
+        validateRoomOwnership(room, token)
         room.users.forEach {
             it.rooms.remove(room.id)
             usersRepository.save(it)
         }
         roomsRepository.delete(room)
+    }
+
+    override fun updateRoom(name: String, token: String, newDeadlines: Deadlines): Room {
+        val room = roomsRepository.findByName(name)
+                .orElseThrow { throw RoomNotFoundException(name) }
+        validateRoomOwnership(room, token)
+        room.signDeadline = newDeadlines.signDeadline
+        room.postDeadline = newDeadlines.postDeadline
+        room.voteDeadline = newDeadlines.voteDeadline
+        return roomsRepository.save(room)
+    }
+
+    private fun validateRoomOwnership(room: Room, userToken: String) {
+        val userNick = tokenService.getSubject(userToken)
+        val user = usersRepository.findByNick(userNick)
+                .orElseThrow { UserNotFoundException(userNick) }
+        if (user.id!! != room.owner) {
+            throw UnauthorizedException()
+        }
     }
 }
