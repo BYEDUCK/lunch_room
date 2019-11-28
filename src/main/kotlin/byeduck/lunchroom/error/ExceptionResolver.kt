@@ -33,13 +33,14 @@ class ExceptionResolver {
                 .body(ErrorMessage(ErrorCodes.INVALID_TOKEN, ""))
     }
 
-    @ExceptionHandler(value = [IllegalArgumentException::class])
+    @ExceptionHandler(value = [IllegalArgumentException::class, RuntimeException::class])
     fun handleBadRequest(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
         var errorCode = ErrorCodes.GENERAL
         when (exception) {
             is ResourceAlreadyExistsException -> errorCode = ErrorCodes.RESOURCE_ALREADY_EXISTS
             is ResourceNotFoundException -> errorCode = ErrorCodes.RESOURCE_NOT_FOUND
             is JoiningPastDeadlineException -> errorCode = ErrorCodes.PAST_DEADLINE
+            is UpdatingRoomWhileVotingException -> errorCode = ErrorCodes.UPDATE_WHILE_VOTE
         }
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

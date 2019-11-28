@@ -1,10 +1,10 @@
 package byeduck.lunchroom.user.controller
 
+import byeduck.lunchroom.validators.constraints.NotBlank
 import byeduck.lunchroom.validators.constraints.PasswordConstraint
-import byeduck.lunchroom.validators.constraints.SimpleStringConstraint
 
 data class SignRequest(
-        @SimpleStringConstraint
+        @NotBlank
         val nick: String,
         @PasswordConstraint
         val password: String

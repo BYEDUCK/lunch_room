@@ -6,13 +6,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-internal class SimpleStringConstraintValidatorTest {
+internal class NotBlankValidatorTest {
 
-    private lateinit var validator: SimpleStringConstraintValidator
+    private lateinit var validator: NotBlankConstraintValidator
 
     @BeforeEach
     internal fun setUp() {
-        validator = SimpleStringConstraintValidator()
+        validator = NotBlankConstraintValidator()
     }
 
     @Test

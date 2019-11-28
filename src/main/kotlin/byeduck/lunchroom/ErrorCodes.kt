@@ -8,6 +8,7 @@ class ErrorCodes {
         const val INVALID_CREDENTIALS = 40
         const val PAST_DEADLINE = 50
         const val UNAUTHORIZED = 60
+        const val UPDATE_WHILE_VOTE = 70
         const val GENERAL = 100
     }
 }

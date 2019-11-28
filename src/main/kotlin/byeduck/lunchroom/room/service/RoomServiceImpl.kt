@@ -3,6 +3,7 @@ package byeduck.lunchroom.room.service
 import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
 import byeduck.lunchroom.error.exceptions.UnauthorizedException
+import byeduck.lunchroom.error.exceptions.UpdatingRoomWhileVotingException
 import byeduck.lunchroom.repositories.RoomsRepository
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
@@ -80,6 +81,9 @@ class RoomServiceImpl(
         val room = roomsRepository.findByName(name)
                 .orElseThrow { throw RoomNotFoundException(name) }
         validateRoomOwnership(room, token)
+        if (room.voteDeadline > System.currentTimeMillis()) {
+            throw UpdatingRoomWhileVotingException(Date(room.voteDeadline).toString())
+        }
         room.signDeadline = newDeadlines.signDeadline
         room.postDeadline = newDeadlines.postDeadline
         room.voteDeadline = newDeadlines.voteDeadline
