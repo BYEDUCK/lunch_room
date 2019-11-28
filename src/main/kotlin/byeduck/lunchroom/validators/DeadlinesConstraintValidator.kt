@@ -1,10 +1,11 @@
 package byeduck.lunchroom.validators
 
 import byeduck.lunchroom.room.service.Deadlines
+import byeduck.lunchroom.validators.constraints.DeadlinesConstraint
 import javax.validation.ConstraintValidator
 import javax.validation.ConstraintValidatorContext
 
-class DeadlinesConstraintValidator : ConstraintValidator<byeduck.lunchroom.validators.constraints.DeadlinesConstraint, Deadlines> {
+class DeadlinesConstraintValidator : ConstraintValidator<DeadlinesConstraint, Deadlines> {
     override fun isValid(deadlines: Deadlines?, p1: ConstraintValidatorContext?): Boolean {
         return areDeadlinesValid(deadlines)
     }

@@ -5,6 +5,7 @@ import byeduck.lunchroom.TOKEN_HEADER_NAME
 import byeduck.lunchroom.lunch.controller.request.CreateLunchProposalRequest
 import byeduck.lunchroom.lunch.controller.request.VoteForProposalRequest
 import byeduck.lunchroom.lunch.controller.response.CreateLunchProposalResponse
+import byeduck.lunchroom.lunch.controller.response.LunchProposalResponse
 import byeduck.lunchroom.lunch.controller.response.VoteForProposalResponse
 import byeduck.lunchroom.lunch.service.LunchService
 import byeduck.lunchroom.token.ValidateToken
@@ -41,6 +42,16 @@ class LunchController(
         return VoteForProposalResponse.fromLunchProposal(
                 lunchService.voteForProposal(request.userId, request.roomId, request.proposalId, request.rating)
         )
+    }
+
+    @GetMapping(value = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
+    fun findByRoomId(
+            @PathVariable("id") roomId: String,
+            @RequestParam("userId") userId: String,
+            @RequestHeader headers: HttpHeaders
+    ): List<LunchProposalResponse> {
+        return lunchService.findAllByRoomId(userId, roomId).map { LunchProposalResponse.fromLunchProposal(it) }
     }
 
 }

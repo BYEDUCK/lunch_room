@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 
 @MustBeDocumented
 @Constraint(validatedBy = [NotBlankConstraintValidator::class])
-@Target(AnnotationTarget.FIELD)
+@Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class NotBlank(
         val message: String = "String not valid",

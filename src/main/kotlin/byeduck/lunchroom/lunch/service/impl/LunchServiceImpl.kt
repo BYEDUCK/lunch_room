@@ -53,6 +53,15 @@ class LunchServiceImpl(
         }.orElseThrow { LunchProposalNotFoundException(proposalId) }
     }
 
+    override fun findAllByRoomId(userId: String, roomId: String): List<LunchProposal> {
+        val room = roomsRepository.findById(roomId)
+                .orElseThrow { RoomNotFoundException(roomId) }
+        val user = usersRepository.findById(userId)
+                .orElseThrow { UserNotFoundException(userId) }
+        validateUserInRoom(user, room)
+        return lunchRepository.findAllByRoomId(roomId)
+    }
+
     private fun validateUserInRoom(user: User, room: Room) {
         if (!user.rooms.contains(room.id)) {
             throw InvalidRoomException()
