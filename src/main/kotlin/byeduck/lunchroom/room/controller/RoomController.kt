@@ -49,7 +49,7 @@ class RoomController(
         return DetailRoomResponse.fromRoom(roomService.joinRoom(request.roomName, request.userId))
     }
 
-    @DeleteMapping(value = ["del/{id}"])
+    @DeleteMapping(value = ["/{id}"])
     @ValidateToken
     fun deleteRoom(
             @RequestHeader requestHeaders: HttpHeaders,
