@@ -1,6 +1,7 @@
 package byeduck.lunchroom.room.service
 
 import byeduck.lunchroom.domain.Room
+import byeduck.lunchroom.domain.RoomUser
 import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
 import byeduck.lunchroom.error.exceptions.UnauthorizedException
 import byeduck.lunchroom.error.exceptions.UpdatingRoomWhileVotingException
@@ -11,6 +12,7 @@ import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.token.service.TokenService
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -21,7 +23,9 @@ class RoomServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository,
         @Autowired
-        private val tokenService: TokenService
+        private val tokenService: TokenService,
+        @Value("\${user.start.points}")
+        private val roomUserStartingPoints: Int
 ) : RoomService {
 
     override fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room {
@@ -34,7 +38,7 @@ class RoomServiceImpl(
             val room = Room(name, ownerId, deadlines.signDeadline, deadlines.postDeadline, deadlines.voteDeadline)
             val insertedRoom = roomsRepository.insert(room)
             it.rooms.add(insertedRoom.id!!)
-            insertedRoom.users.add(it)
+            insertedRoom.users.add(RoomUser(it, roomUserStartingPoints))
             usersRepository.save(it)
             return@map roomsRepository.save(insertedRoom)
         }.orElseThrow { UserNotFoundException(ownerId) }
@@ -60,7 +64,7 @@ class RoomServiceImpl(
             } else {
                 it.rooms.add(room.id!!)
                 usersRepository.save(it)
-                room.users.add(it)
+                room.users.add(RoomUser(it, roomUserStartingPoints))
                 return@map roomsRepository.save(room)
             }
         }.orElseThrow { UserNotFoundException(userId) }
@@ -71,8 +75,8 @@ class RoomServiceImpl(
                 .orElseThrow { throw RoomNotFoundException(id) }
         validateRoomOwnership(room, token)
         room.users.forEach {
-            it.rooms.remove(room.id)
-            usersRepository.save(it)
+            it.user.rooms.remove(room.id)
+            usersRepository.save(it.user)
         }
         roomsRepository.delete(room)
     }

@@ -1,14 +1,15 @@
 package byeduck.lunchroom.room.controller.response
 
-import byeduck.lunchroom.domain.User
+import byeduck.lunchroom.domain.RoomUser
 
 data class SimpleUserResponse(
         var nick: String,
-        var id: String
+        var id: String,
+        var points: Int
 ) {
     companion object {
-        fun fromUser(user: User): SimpleUserResponse {
-            return SimpleUserResponse(user.nick, user.id!!)
+        fun fromUser(roomUser: RoomUser): SimpleUserResponse {
+            return SimpleUserResponse(roomUser.user.nick, roomUser.user.id!!, roomUser.points)
         }
     }
 }

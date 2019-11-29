@@ -1,5 +1,6 @@
 package byeduck.lunchroom.room.service
 
+import byeduck.lunchroom.domain.RoomUser
 import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 
@@ -28,6 +30,9 @@ internal class RoomServiceImplIT {
 
     @Autowired
     private lateinit var usersRepository: UsersRepository
+
+    @Value("\${user.start.points}")
+    private lateinit var userStartingPoints: String
 
     @BeforeEach
     internal fun setUp() {
@@ -47,7 +52,7 @@ internal class RoomServiceImplIT {
 
         val updatedOwner = usersRepository.findById(owner.id!!)
         assertThat(updatedOwner.get().rooms).containsExactly(savedRoom.id)
-        assertThat(savedRoom.users).containsExactly(updatedOwner.get())
+        assertThat(savedRoom.users).containsExactly(RoomUser(updatedOwner.get(), userStartingPoints.toInt()))
     }
 
     @Test
@@ -81,7 +86,9 @@ internal class RoomServiceImplIT {
         otherUser = usersRepository.findById(otherUser.id!!).get()
         owner = usersRepository.findByNick(testUserNick).get()
 
-        assertThat(room.users).containsExactly(owner, otherUser)
+        assertThat(room.users).containsExactly(
+                RoomUser(owner, userStartingPoints.toInt()), RoomUser(otherUser, userStartingPoints.toInt())
+        )
         assertThat(otherUser.rooms).containsExactly(room.id)
         assertThat(owner.rooms).containsExactly(room.id)
     }
