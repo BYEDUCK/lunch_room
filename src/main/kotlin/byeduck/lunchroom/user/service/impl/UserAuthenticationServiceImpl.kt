@@ -51,7 +51,7 @@ class UserAuthenticationServiceImpl(
         }
         val salt = generateSalt()
         val hashed = hashPasswordWithSalt(password, salt)
-        usersRepository.insert(User(nick, hashed, salt, ArrayList()))
+        usersRepository.insert(User(nick, hashed, salt))
     }
 
     private fun generateSalt(): ByteArray {

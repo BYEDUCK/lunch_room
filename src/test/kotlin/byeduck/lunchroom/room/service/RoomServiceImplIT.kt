@@ -22,7 +22,7 @@ internal class RoomServiceImplIT {
 
     private val testUserNick = "testNick"
     private val testRoomName = "testName"
-    private val testUser = User(testUserNick, ByteArray(0), ByteArray(0), ArrayList())
+    private val testUser = User(testUserNick, ByteArray(0), ByteArray(0))
     private lateinit var deadlines: Deadlines
 
     @Autowired
@@ -80,7 +80,7 @@ internal class RoomServiceImplIT {
     @DirtiesContext
     internal fun testJoinRoomValid() {
         var owner = usersRepository.save(testUser)
-        var otherUser = usersRepository.save(User("otherUser", ByteArray(0), ByteArray(0), ArrayList()))
+        var otherUser = usersRepository.save(User("otherUser", ByteArray(0), ByteArray(0)))
         roomService.addRoom(testRoomName, owner.id!!, deadlines)
         val room = roomService.joinRoom(testRoomName, otherUser.id!!)
         otherUser = usersRepository.findById(otherUser.id!!).get()

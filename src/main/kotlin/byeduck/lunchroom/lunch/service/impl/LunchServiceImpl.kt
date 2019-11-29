@@ -1,11 +1,10 @@
 package byeduck.lunchroom.lunch.service.impl
 
-import byeduck.lunchroom.domain.LunchProposal
-import byeduck.lunchroom.domain.MenuItem
-import byeduck.lunchroom.domain.Room
-import byeduck.lunchroom.domain.User
+import byeduck.lunchroom.domain.*
+import byeduck.lunchroom.error.exceptions.AlreadyVotedException
 import byeduck.lunchroom.error.exceptions.InvalidPhaseException
 import byeduck.lunchroom.error.exceptions.InvalidRoomException
+import byeduck.lunchroom.error.exceptions.NotEnoughPointsAvailableException
 import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
 import byeduck.lunchroom.lunch.service.LunchService
 import byeduck.lunchroom.repositories.LunchRepository
@@ -47,8 +46,17 @@ class LunchServiceImpl(
         val user = usersRepository.findById(userId)
                 .orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
+        val roomUserIndex = room.users.indexOf(RoomUser(user))
         val lunchProposal = lunchRepository.findById(proposalId)
         return lunchProposal.map {
+            if (user.votes.contains(Vote(it.id!!))) {
+                throw AlreadyVotedException()
+            }
+            validateUserPoints(rating, room.users[roomUserIndex])
+            user.votes.add(Vote(it.id!!, rating))
+            room.users[roomUserIndex].points -= rating
+            roomsRepository.save(room)
+            usersRepository.save(user)
             lunchRepository.save(it.voteFor(rating))
         }.orElseThrow { LunchProposalNotFoundException(proposalId) }
     }
@@ -65,6 +73,12 @@ class LunchServiceImpl(
     private fun validateUserInRoom(user: User, room: Room) {
         if (!user.rooms.contains(room.id)) {
             throw InvalidRoomException()
+        }
+    }
+
+    private fun validateUserPoints(rating: Int, roomUser: RoomUser) {
+        if (roomUser.points < rating) {
+            throw NotEnoughPointsAvailableException()
         }
     }
 
