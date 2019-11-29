@@ -49,11 +49,11 @@ class LunchServiceImpl(
         val roomUserIndex = room.users.indexOf(RoomUser(user))
         val lunchProposal = lunchRepository.findById(proposalId)
         return lunchProposal.map {
-            if (user.votes.contains(Vote(it.id!!))) {
+            if (room.users[roomUserIndex].votes.contains(Vote(it.id!!))) {
                 throw AlreadyVotedException()
             }
             validateUserPoints(rating, room.users[roomUserIndex])
-            user.votes.add(Vote(it.id!!, rating))
+            room.users[roomUserIndex].votes.add(Vote(it.id!!, rating))
             room.users[roomUserIndex].points -= rating
             roomsRepository.save(room)
             usersRepository.save(user)

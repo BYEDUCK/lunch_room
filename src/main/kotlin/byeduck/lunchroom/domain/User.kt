@@ -10,12 +10,11 @@ data class User(
         var nick: String,
         var password: ByteArray,
         var salt: ByteArray,
-        var rooms: MutableList<String>,
-        var votes: MutableList<Vote>
+        var rooms: MutableList<String>
 ) {
 
     constructor(nick: String, password: ByteArray, salt: ByteArray)
-            : this(null, nick, password, salt, ArrayList(), ArrayList())
+            : this(null, nick, password, salt, ArrayList())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -28,7 +27,6 @@ data class User(
         if (!password.contentEquals(other.password)) return false
         if (!salt.contentEquals(other.salt)) return false
         if (rooms != other.rooms) return false
-        if (votes != other.votes) return false
 
         return true
     }
@@ -39,7 +37,6 @@ data class User(
         result = 31 * result + password.contentHashCode()
         result = 31 * result + salt.contentHashCode()
         result = 31 * result + rooms.hashCode()
-        result = 31 * result + votes.hashCode()
         return result
     }
 

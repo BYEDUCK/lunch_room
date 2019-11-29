@@ -1,9 +1,6 @@
 package byeduck.lunchroom.lunch.service.impl
 
-import byeduck.lunchroom.domain.MenuItem
-import byeduck.lunchroom.domain.Room
-import byeduck.lunchroom.domain.User
-import byeduck.lunchroom.domain.Vote
+import byeduck.lunchroom.domain.*
 import byeduck.lunchroom.error.exceptions.AlreadyVotedException
 import byeduck.lunchroom.error.exceptions.InvalidRoomException
 import byeduck.lunchroom.error.exceptions.NotEnoughPointsAvailableException
@@ -103,14 +100,15 @@ internal class LunchServiceImplIT {
         waitDelay()
         val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, getTestMenuItems())
         waitDelay()
-        val rating = 4
+        val rating = userStartingPoints.toInt()
         val voted = lunchService.voteForProposal(user.id!!, room.id!!, lunchProposal.id!!, rating)
         val updatedRoom = roomRepository.findById(room.id!!).get()
         val updatedUser = usersRepository.findById(user.id!!).get()
+        val roomUserIndex = updatedRoom.users.indexOf(RoomUser(updatedUser))
 
         assertEquals(1, voted.votesCount)
         assertEquals(rating, voted.ratingSum)
-        assertThat(updatedUser.votes).contains(Vote(lunchProposal.id!!, rating))
+        assertThat(updatedRoom.users[roomUserIndex].votes).contains(Vote(lunchProposal.id!!, rating))
 
         val roomUser = updatedRoom.users.first { it.user.id == updatedUser.id }
         assertEquals(userStartingPoints.toInt() - rating, roomUser.points)
@@ -123,10 +121,12 @@ internal class LunchServiceImplIT {
         waitDelay()
         val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, getTestMenuItems())
         waitDelay()
-        val rating = 4
+        val rating = userStartingPoints.toInt()
         lunchService.voteForProposal(user.id!!, room.id!!, lunchProposal.id!!, rating)
 
-        assertThrows<AlreadyVotedException> { lunchService.voteForProposal(user.id!!, room.id!!, lunchProposal.id!!, rating) }
+        assertThrows<AlreadyVotedException> {
+            lunchService.voteForProposal(user.id!!, room.id!!, lunchProposal.id!!, rating)
+        }
     }
 
     @Test

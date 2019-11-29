@@ -5,6 +5,7 @@ import byeduck.lunchroom.domain.RoomUser
 import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
 import byeduck.lunchroom.error.exceptions.UnauthorizedException
 import byeduck.lunchroom.error.exceptions.UpdatingRoomWhileVotingException
+import byeduck.lunchroom.repositories.LunchRepository
 import byeduck.lunchroom.repositories.RoomsRepository
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
@@ -22,6 +23,8 @@ class RoomServiceImpl(
         private val roomsRepository: RoomsRepository,
         @Autowired
         private val usersRepository: UsersRepository,
+        @Autowired
+        private val lunchRepository: LunchRepository,
         @Autowired
         private val tokenService: TokenService,
         @Value("\${user.start.points}")
@@ -74,8 +77,11 @@ class RoomServiceImpl(
         val room = roomsRepository.findById(id)
                 .orElseThrow { throw RoomNotFoundException(id) }
         validateRoomOwnership(room, token)
+        lunchRepository.findAllByRoomId(room.id!!).forEach {
+            lunchRepository.delete(it)
+        }
         room.users.forEach {
-            it.user.rooms.remove(room.id)
+            it.user.rooms.remove(room.id!!)
             usersRepository.save(it.user)
         }
         roomsRepository.delete(room)
