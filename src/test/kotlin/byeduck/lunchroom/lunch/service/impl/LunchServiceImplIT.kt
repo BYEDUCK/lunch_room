@@ -44,6 +44,7 @@ internal class LunchServiceImplIT {
 
     private val userNick = "testNick"
     private val roomName = "testName"
+    private val proposalTitle = "testTitle"
     private val delay = 500
     private lateinit var user: User
     private lateinit var room: Room
@@ -58,7 +59,7 @@ internal class LunchServiceImplIT {
     @DisplayName("Simple lunch proposal addition")
     internal fun testAddLunchProposalValid() {
         waitDelay()
-        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, getTestMenuItems())
+        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, proposalTitle, getTestMenuItems())
 
         assertEquals(0, lunchProposal.ratingSum)
         assertEquals(0, lunchProposal.votesCount)
@@ -74,7 +75,9 @@ internal class LunchServiceImplIT {
         val otherUser = usersRepository.findByNick(otherUserNick).get()
 
         waitDelay()
-        assertThrows<InvalidRoomException> { lunchService.addLunchProposal(otherUser.id!!, room.id!!, getTestMenuItems()) }
+        assertThrows<InvalidRoomException> {
+            lunchService.addLunchProposal(otherUser.id!!, room.id!!, proposalTitle, getTestMenuItems())
+        }
     }
 
     @Test
@@ -86,7 +89,7 @@ internal class LunchServiceImplIT {
         val otherUser = usersRepository.findByNick(otherUserNick).get()
         roomService.joinRoom(roomName, otherUser.id!!)
         waitDelay()
-        val lunchProposal = lunchService.addLunchProposal(otherUser.id!!, room.id!!, getTestMenuItems())
+        val lunchProposal = lunchService.addLunchProposal(otherUser.id!!, room.id!!, proposalTitle, getTestMenuItems())
 
         assertEquals(0, lunchProposal.ratingSum)
         assertEquals(0, lunchProposal.votesCount)
@@ -98,7 +101,7 @@ internal class LunchServiceImplIT {
     @DisplayName("Voting for proposal - valid")
     internal fun testVoteForProposalValid() {
         waitDelay()
-        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, getTestMenuItems())
+        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, proposalTitle, getTestMenuItems())
         waitDelay()
         val rating = userStartingPoints.toInt()
         val voted = lunchService.voteForProposal(user.id!!, room.id!!, lunchProposal.id!!, rating)
@@ -119,7 +122,7 @@ internal class LunchServiceImplIT {
     @DisplayName("Voting for same proposal twice should result in exception")
     internal fun testVoteTwiceForSameProposal() {
         waitDelay()
-        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, getTestMenuItems())
+        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, proposalTitle, getTestMenuItems())
         waitDelay()
         val rating = userStartingPoints.toInt()
         lunchService.voteForProposal(user.id!!, room.id!!, lunchProposal.id!!, rating)
@@ -134,7 +137,7 @@ internal class LunchServiceImplIT {
     @DisplayName("Voting on more rating than available points should result in exception")
     internal fun testVoteWithNotEnoughPoints() {
         waitDelay()
-        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, getTestMenuItems())
+        val lunchProposal = lunchService.addLunchProposal(user.id!!, room.id!!, proposalTitle, getTestMenuItems())
         waitDelay()
         val rating = userStartingPoints.toInt() + 1
 

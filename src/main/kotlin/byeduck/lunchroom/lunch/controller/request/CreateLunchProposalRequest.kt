@@ -9,6 +9,8 @@ data class CreateLunchProposalRequest(
         var userId: String,
         @NotBlank
         var roomId: String,
+        @NotBlank
+        var title: String,
         @NotEmptyList
-        var menuItems: MutableList<MenuItem>
+        var menuItems: List<MenuItem>
 )

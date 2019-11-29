@@ -30,7 +30,7 @@ class LunchController(
             @Valid @RequestBody request: CreateLunchProposalRequest, @RequestHeader requestHeaders: HttpHeaders
     ): CreateLunchProposalResponse {
         return CreateLunchProposalResponse.fromLunchProposal(
-                lunchService.addLunchProposal(request.userId, request.roomId, request.menuItems)
+                lunchService.addLunchProposal(request.userId, request.roomId, request.title, request.menuItems)
         )
     }
 

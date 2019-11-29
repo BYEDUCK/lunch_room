@@ -5,14 +5,15 @@ import byeduck.lunchroom.domain.MenuItem
 
 data class LunchProposalResponse(
         val proposalId: String,
-        val menuItems: MutableList<MenuItem>,
+        val title: String,
+        val menuItems: List<MenuItem>,
         val ratingSum: Int,
         val votesCount: Int
 ) {
     companion object {
         fun fromLunchProposal(lunchProposal: LunchProposal): LunchProposalResponse {
             return LunchProposalResponse(
-                    lunchProposal.id!!, lunchProposal.menuItems, lunchProposal.ratingSum, lunchProposal.votesCount
+                    lunchProposal.id!!, lunchProposal.title, lunchProposal.menuItems, lunchProposal.ratingSum, lunchProposal.votesCount
             )
         }
     }
