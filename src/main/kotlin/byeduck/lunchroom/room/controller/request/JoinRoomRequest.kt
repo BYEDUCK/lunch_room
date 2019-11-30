@@ -6,5 +6,5 @@ data class JoinRoomRequest(
         @NotBlank
         var userId: String,
         @NotBlank
-        var roomName: String
+        var roomId: String
 )

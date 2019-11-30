@@ -54,9 +54,9 @@ class RoomServiceImpl(
         }.orElseThrow { UserNotFoundException(userId) }
     }
 
-    override fun joinRoom(name: String, userId: String): Room {
-        val room = roomsRepository.findByName(name)
-                .orElseThrow { RoomNotFoundException(name) }
+    override fun joinRoom(roomId: String, userId: String): Room {
+        val room = roomsRepository.findById(roomId)
+                .orElseThrow { RoomNotFoundException(roomId) }
         val user = usersRepository.findById(userId)
         return user.map {
             if (room.signDeadline < System.currentTimeMillis()) {
@@ -87,9 +87,9 @@ class RoomServiceImpl(
         roomsRepository.delete(room)
     }
 
-    override fun updateRoom(name: String, token: String, newDeadlines: Deadlines): Room {
-        val room = roomsRepository.findByName(name)
-                .orElseThrow { throw RoomNotFoundException(name) }
+    override fun updateRoom(roomId: String, token: String, newDeadlines: Deadlines): Room {
+        val room = roomsRepository.findById(roomId)
+                .orElseThrow { throw RoomNotFoundException(roomId) }
         validateRoomOwnership(room, token)
         if (room.voteDeadline > System.currentTimeMillis()) {
             throw UpdatingRoomWhileVotingException(Date(room.voteDeadline).toString())

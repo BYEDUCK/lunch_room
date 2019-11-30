@@ -46,7 +46,7 @@ class RoomController(
             @Valid @RequestBody request: JoinRoomRequest,
             @RequestHeader requestHeaders: HttpHeaders
     ): DetailRoomResponse {
-        return DetailRoomResponse.fromRoom(roomService.joinRoom(request.roomName, request.userId))
+        return DetailRoomResponse.fromRoom(roomService.joinRoom(request.roomId, request.userId))
     }
 
     @DeleteMapping(value = ["/{id}"])
@@ -65,7 +65,7 @@ class RoomController(
             @RequestHeader requestHeaders: HttpHeaders,
             @RequestHeader(TOKEN_HEADER_NAME) token: String
     ): SimpleRoomResponse {
-        return SimpleRoomResponse.fromRoom(roomService.updateRoom(request.roomName, token, request.deadlines))
+        return SimpleRoomResponse.fromRoom(roomService.updateRoom(request.roomId, token, request.deadlines))
     }
 
 }

@@ -81,8 +81,8 @@ internal class RoomServiceImplIT {
     internal fun testJoinRoomValid() {
         var owner = usersRepository.save(testUser)
         var otherUser = usersRepository.save(User("otherUser", ByteArray(0), ByteArray(0)))
-        roomService.addRoom(testRoomName, owner.id!!, deadlines)
-        val room = roomService.joinRoom(testRoomName, otherUser.id!!)
+        val addedRoom = roomService.addRoom(testRoomName, owner.id!!, deadlines)
+        val room = roomService.joinRoom(addedRoom.id!!, otherUser.id!!)
         otherUser = usersRepository.findById(otherUser.id!!).get()
         owner = usersRepository.findByNick(testUserNick).get()
 

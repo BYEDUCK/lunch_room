@@ -6,7 +6,7 @@ import byeduck.lunchroom.validators.constraints.NotBlank
 
 data class UpdateRoomRequest(
         @NotBlank
-        val roomName: String,
+        val roomId: String,
         @DeadlinesConstraint
         val deadlines: Deadlines
 )

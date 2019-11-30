@@ -18,7 +18,7 @@ while test $# -gt 0; do
                     shift
                     deploy=1
                     ;;
-                -ut|--integration-test)
+                -ut|--unit-test)
                     shift
                     doUnit=1
                     ;;
