@@ -82,7 +82,7 @@ internal class RoomServiceImplIT {
         var owner = usersRepository.save(testUser)
         var otherUser = usersRepository.save(User("otherUser", ByteArray(0), ByteArray(0)))
         val addedRoom = roomService.addRoom(testRoomName, owner.id!!, deadlines)
-        val room = roomService.joinRoom(addedRoom.id!!, otherUser.id!!)
+        val room = roomService.joinRoomById(addedRoom.id!!, otherUser.id!!)
         otherUser = usersRepository.findById(otherUser.id!!).get()
         owner = usersRepository.findByNick(testUserNick).get()
 

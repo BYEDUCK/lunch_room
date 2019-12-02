@@ -3,7 +3,8 @@ package byeduck.lunchroom.room.controller
 import byeduck.lunchroom.NICK_HEADER_NAME
 import byeduck.lunchroom.TOKEN_HEADER_NAME
 import byeduck.lunchroom.room.controller.request.CreateRoomRequest
-import byeduck.lunchroom.room.controller.request.JoinRoomRequest
+import byeduck.lunchroom.room.controller.request.JoinRoomByIdRequest
+import byeduck.lunchroom.room.controller.request.JoinRoomByNameRequest
 import byeduck.lunchroom.room.controller.request.UpdateRoomRequest
 import byeduck.lunchroom.room.controller.response.DetailRoomResponse
 import byeduck.lunchroom.room.controller.response.SimpleRoomResponse
@@ -42,11 +43,20 @@ class RoomController(
 
     @PostMapping(value = ["join"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ValidateToken
-    fun joinRoom(
-            @Valid @RequestBody request: JoinRoomRequest,
+    fun joinRoomById(
+            @Valid @RequestBody request: JoinRoomByIdRequest,
             @RequestHeader requestHeaders: HttpHeaders
     ): DetailRoomResponse {
-        return DetailRoomResponse.fromRoom(roomService.joinRoom(request.roomId, request.userId))
+        return DetailRoomResponse.fromRoom(roomService.joinRoomById(request.roomId, request.userId))
+    }
+
+    @PostMapping(value = ["joinByName"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
+    fun joinRoomByName(
+            @Valid @RequestBody request: JoinRoomByNameRequest,
+            @RequestHeader requestHeaders: HttpHeaders
+    ): DetailRoomResponse {
+        return DetailRoomResponse.fromRoom(roomService.joinRoomByName(request.roomName, request.userId))
     }
 
     @DeleteMapping(value = ["/{id}"])

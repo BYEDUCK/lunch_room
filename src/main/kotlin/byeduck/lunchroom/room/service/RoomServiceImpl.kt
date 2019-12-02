@@ -54,23 +54,16 @@ class RoomServiceImpl(
         }.orElseThrow { UserNotFoundException(userId) }
     }
 
-    override fun joinRoom(roomId: String, userId: String): Room {
+    override fun joinRoomById(roomId: String, userId: String): Room {
         val room = roomsRepository.findById(roomId)
                 .orElseThrow { RoomNotFoundException(roomId) }
-        val user = usersRepository.findById(userId)
-        return user.map {
-            if (room.signDeadline < System.currentTimeMillis()) {
-                throw JoiningPastDeadlineException(Date(room.signDeadline).toString())
-            }
-            if (user.get().rooms.contains(room.id)) {
-                return@map room
-            } else {
-                it.rooms.add(room.id!!)
-                usersRepository.save(it)
-                room.users.add(RoomUser(it, roomUserStartingPoints))
-                return@map roomsRepository.save(room)
-            }
-        }.orElseThrow { UserNotFoundException(userId) }
+        return joinRoom(room, userId)
+    }
+
+    override fun joinRoomByName(roomName: String, userId: String): Room {
+        val room = roomsRepository.findByName(roomName)
+                .orElseThrow { RoomNotFoundException(roomName) }
+        return joinRoom(room, userId)
     }
 
     override fun deleteRoom(id: String, token: String) {
@@ -98,6 +91,23 @@ class RoomServiceImpl(
         room.postDeadline = newDeadlines.postDeadline
         room.voteDeadline = newDeadlines.voteDeadline
         return roomsRepository.save(room)
+    }
+
+    private fun joinRoom(room: Room, userId: String): Room {
+        val user = usersRepository.findById(userId)
+        return user.map {
+            if (room.signDeadline < System.currentTimeMillis()) {
+                throw JoiningPastDeadlineException(Date(room.signDeadline).toString())
+            }
+            if (user.get().rooms.contains(room.id)) {
+                return@map room
+            } else {
+                it.rooms.add(room.id!!)
+                usersRepository.save(it)
+                room.users.add(RoomUser(it, roomUserStartingPoints))
+                return@map roomsRepository.save(room)
+            }
+        }.orElseThrow { UserNotFoundException(userId) }
     }
 
     private fun validateRoomOwnership(room: Room, userToken: String) {

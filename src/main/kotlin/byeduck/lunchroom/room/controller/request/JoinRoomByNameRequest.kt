@@ -2,9 +2,9 @@ package byeduck.lunchroom.room.controller.request
 
 import byeduck.lunchroom.validators.constraints.NotBlank
 
-data class JoinRoomRequest(
+class JoinRoomByNameRequest(
         @NotBlank
         var userId: String,
         @NotBlank
-        var roomId: String
+        var roomName: String
 )

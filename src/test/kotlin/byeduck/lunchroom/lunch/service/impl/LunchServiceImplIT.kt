@@ -87,7 +87,7 @@ internal class LunchServiceImplIT {
         val otherUserNick = "other"
         authenticationService.signUp(otherUserNick, "12345678")
         val otherUser = usersRepository.findByNick(otherUserNick).get()
-        roomService.joinRoom(room.id!!, otherUser.id!!)
+        roomService.joinRoomById(room.id!!, otherUser.id!!)
         waitDelay()
         val lunchProposal = lunchService.addLunchProposal(otherUser.id!!, room.id!!, proposalTitle, getTestMenuItems())
 
