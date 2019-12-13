@@ -16,6 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
+// TODO: change to use websockets
 @RestController
 @RequestMapping(value = ["/lunch"], headers = [NICK_HEADER_NAME, TOKEN_HEADER_NAME])
 class LunchController(
