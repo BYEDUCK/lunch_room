@@ -17,7 +17,7 @@ class LocalWebConfig(
     override fun addCorsMappings(registry: CorsRegistry) {
         registry
                 .addMapping("/**")
-                .allowedOrigins(frontUrl)
+                .allowedOrigins("*")
                 .allowedMethods(*allowedMethods)
         super.addCorsMappings(registry)
     }
