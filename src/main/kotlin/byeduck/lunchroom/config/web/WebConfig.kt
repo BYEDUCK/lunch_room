@@ -7,17 +7,17 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-@Profile("heroku")
-class HerokuWebConfig(
-        @Value("\${front.url}")
-        private val frontUrl: String,
+@Profile("local", "docker", "heroku")
+class WebConfig(
+        @Value("\${origins.allowed}")
+        private val allowedOrigins: Array<String>,
         @Value("\${front.allowed.methods}")
         private val allowedMethods: Array<String>
 ) : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry
                 .addMapping("/**")
-                .allowedOrigins(frontUrl)
+                .allowedOrigins(*allowedOrigins)
                 .allowedMethods(*allowedMethods)
         super.addCorsMappings(registry)
     }
