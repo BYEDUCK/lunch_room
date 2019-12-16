@@ -3,7 +3,7 @@ package byeduck.lunchroom.lunch.controller
 import byeduck.lunchroom.error.exceptions.RequiredParameterEmptyException
 import byeduck.lunchroom.lunch.controller.request.LunchRequest
 import byeduck.lunchroom.lunch.controller.request.LunchRequestType
-import byeduck.lunchroom.lunch.controller.response.LunchProposalResponse
+import byeduck.lunchroom.lunch.controller.response.LunchResponse
 import byeduck.lunchroom.lunch.service.LunchService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,12 +22,12 @@ class LunchWsController(
 
     @MessageMapping("/propose")
     @SendTo("/room/proposals")
-    fun handleLunchRequests(request: LunchRequest): List<LunchProposalResponse> {
-        val processed: MutableList<LunchProposalResponse> = ArrayList()
+    fun handleLunchRequests(request: LunchRequest): List<LunchResponse> {
+        val processed: MutableList<LunchResponse> = ArrayList()
         when (request.lunchRequestType) {
             LunchRequestType.ADD -> {
                 logger.info("Adding new lunch proposal by user {} in room {}", request.userId, request.roomId)
-                processed.add(LunchProposalResponse.fromLunchProposal(
+                processed.add(LunchResponse.fromLunchProposal(
                         lunchService.addLunchProposal(
                                 request.userId,
                                 request.roomId,
@@ -40,7 +40,7 @@ class LunchWsController(
                         "Voting for lunch proposal {} by user {} with {} rating",
                         request.proposalId, request.userId, request.rating
                 )
-                processed.add(LunchProposalResponse.fromLunchProposal(
+                processed.add(LunchResponse.fromLunchProposal(
                         lunchService.voteForProposal(
                                 request.userId,
                                 request.roomId,
@@ -53,7 +53,7 @@ class LunchWsController(
                 processed.addAll(lunchService.findAllByRoomId(
                         request.userId,
                         request.roomId
-                ).map { LunchProposalResponse.fromLunchProposal(it) })
+                ).map { LunchResponse.fromLunchProposal(it) })
             }
         }
         return processed
