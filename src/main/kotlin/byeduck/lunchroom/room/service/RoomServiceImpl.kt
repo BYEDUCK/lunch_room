@@ -54,15 +54,13 @@ class RoomServiceImpl(
         }.orElseThrow { UserNotFoundException(userId) }
     }
 
+    override fun findRoomByName(name: String): Room {
+        return roomsRepository.findByName(name).orElseThrow { RoomNotFoundException(name) }
+    }
+
     override fun joinRoomById(roomId: String, userId: String): Room {
         val room = roomsRepository.findById(roomId)
                 .orElseThrow { RoomNotFoundException(roomId) }
-        return joinRoom(room, userId)
-    }
-
-    override fun joinRoomByName(roomName: String, userId: String): Room {
-        val room = roomsRepository.findByName(roomName)
-                .orElseThrow { RoomNotFoundException(roomName) }
         return joinRoom(room, userId)
     }
 
