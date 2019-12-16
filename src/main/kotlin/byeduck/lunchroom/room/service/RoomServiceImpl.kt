@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Service
 class RoomServiceImpl(
@@ -88,6 +89,15 @@ class RoomServiceImpl(
         room.signDeadline = newDeadlines.signDeadline
         room.postDeadline = newDeadlines.postDeadline
         room.voteDeadline = newDeadlines.voteDeadline
+        room.users.forEach {
+            it.points = roomUserStartingPoints
+            it.votes = ArrayList()
+        }
+        lunchRepository.findAllByRoomId(roomId).forEach {
+            it.ratingSum = 0
+            it.votesCount = 0
+            lunchRepository.save(it)
+        }
         return roomsRepository.save(room)
     }
 
