@@ -14,8 +14,10 @@ import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 
 @Service
+@Validated
 class LunchServiceImpl(
         @Autowired
         private val lunchRepository: LunchRepository,

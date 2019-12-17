@@ -1,10 +1,11 @@
 package byeduck.lunchroom.room.controller.request
 
-import byeduck.lunchroom.validators.constraints.NotBlank
+import javax.validation.constraints.NotBlank
+
 
 data class JoinRoomByIdRequest(
-        @NotBlank
+        @field:NotBlank
         var userId: String,
-        @NotBlank
+        @field:NotBlank
         var roomId: String
 )

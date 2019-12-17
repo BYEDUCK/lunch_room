@@ -2,12 +2,12 @@ package byeduck.lunchroom.room.controller.request
 
 import byeduck.lunchroom.room.service.Deadlines
 import byeduck.lunchroom.validators.constraints.DeadlinesConstraint
-import byeduck.lunchroom.validators.constraints.NotBlank
+import javax.validation.constraints.NotBlank
 
 data class CreateRoomRequest(
-        @NotBlank
+        @field:NotBlank
         val name: String,
-        @NotBlank
+        @field:NotBlank
         val ownerId: String,
         @DeadlinesConstraint
         val deadlines: Deadlines

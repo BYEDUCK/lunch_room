@@ -1,11 +1,11 @@
 package byeduck.lunchroom.domain
 
-import byeduck.lunchroom.validators.constraints.NotBlank
-import byeduck.lunchroom.validators.constraints.PriceConstraint
+import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
 
 data class MenuItem(
-        @NotBlank
+        @field:NotBlank
         var description: String,
-        @PriceConstraint
+        @field:Min(1)
         var price: Double
 )
