@@ -1,5 +1,8 @@
 package byeduck.lunchroom.lunch.service
 
+import byeduck.lunchroom.CANNOT_BE_EMPTY_MSG
+import byeduck.lunchroom.ROOM_ID_CANNOT_BE_EMPTY_MSG
+import byeduck.lunchroom.USER_ID_CANNOT_BE_EMPTY_MSG
 import byeduck.lunchroom.domain.LunchProposal
 import byeduck.lunchroom.domain.MenuItem
 import javax.validation.Valid
@@ -9,21 +12,21 @@ import javax.validation.constraints.NotBlank
 
 interface LunchService {
     fun addLunchProposal(
-            @NotBlank userId: String,
-            @NotBlank roomId: String,
-            @NotBlank title: String,
+            @NotBlank(message = USER_ID_CANNOT_BE_EMPTY_MSG) userId: String,
+            @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String,
+            @NotBlank(message = "Proposal's title $CANNOT_BE_EMPTY_MSG") title: String,
             @Valid menuItems: List<MenuItem>
     ): LunchProposal
 
     fun voteForProposal(
-            @NotBlank userId: String,
-            @NotBlank roomId: String,
-            @NotBlank proposalId: String,
-            @Min(1) @Max(6) rating: Int
+            @NotBlank(message = USER_ID_CANNOT_BE_EMPTY_MSG) userId: String,
+            @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String,
+            @NotBlank(message = "Proposal id $CANNOT_BE_EMPTY_MSG") proposalId: String,
+            @Min(value = 1, message = "Rating must be > 1") @Max(value = 6, message = "Rating must be < 6") rating: Int
     ): LunchProposal
 
     fun findAllByRoomId(
-            @NotBlank userId: String,
-            @NotBlank roomId: String
+            @NotBlank(message = USER_ID_CANNOT_BE_EMPTY_MSG) userId: String,
+            @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String
     ): List<LunchProposal>
 }
