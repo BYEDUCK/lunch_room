@@ -1,5 +1,6 @@
 package byeduck.lunchroom.room.service
 
+import byeduck.lunchroom.domain.Lottery
 import byeduck.lunchroom.domain.Room
 
 interface RoomService {
@@ -9,4 +10,5 @@ interface RoomService {
     fun joinRoomById(roomId: String, userId: String): Room
     fun deleteRoom(id: String, token: String)
     fun updateRoom(roomId: String, token: String, newDeadlines: Deadlines): Room
+    fun doTheLottery(userId: String, roomId: String, token: String): Lottery
 }

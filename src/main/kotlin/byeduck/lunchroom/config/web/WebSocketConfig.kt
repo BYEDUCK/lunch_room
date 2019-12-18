@@ -18,6 +18,7 @@ class WebSocketConfig(
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry.enableSimpleBroker("/room")
         registry.setApplicationDestinationPrefixes("/app")
+        registry.setUserDestinationPrefix("/room/errors")
         super.configureMessageBroker(registry)
     }
 

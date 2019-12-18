@@ -1,10 +1,10 @@
 package byeduck.lunchroom.room.service
 
+import byeduck.lunchroom.domain.Lottery
 import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.domain.RoomUser
-import byeduck.lunchroom.error.exceptions.JoiningPastDeadlineException
-import byeduck.lunchroom.error.exceptions.UnauthorizedException
-import byeduck.lunchroom.error.exceptions.UpdatingRoomWhileVotingException
+import byeduck.lunchroom.error.exceptions.*
+import byeduck.lunchroom.repositories.LotteryRepository
 import byeduck.lunchroom.repositories.LunchRepository
 import byeduck.lunchroom.repositories.RoomsRepository
 import byeduck.lunchroom.repositories.UsersRepository
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.random.Random
 
 @Service
 class RoomServiceImpl(
@@ -26,6 +27,8 @@ class RoomServiceImpl(
         private val usersRepository: UsersRepository,
         @Autowired
         private val lunchRepository: LunchRepository,
+        @Autowired
+        private val lotteryRepository: LotteryRepository,
         @Autowired
         private val tokenService: TokenService,
         @Value("\${user.start.points}")
@@ -99,6 +102,27 @@ class RoomServiceImpl(
             lunchRepository.save(it)
         }
         return roomsRepository.save(room)
+    }
+
+    override fun doTheLottery(userId: String, roomId: String, token: String): Lottery {
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        validateRoomOwnership(room, token)
+        val lunchProposals = lunchRepository.findAllByRoomId(roomId)
+        if (lunchProposals.size < 2) {
+            throw OneProposalException()
+        }
+        val winnerProposal = lunchProposals.maxBy { it.ratingSum } ?: throw RuntimeException("Unexpected error")
+        val usersCount = room.users.size
+        if (usersCount < 2) {
+            throw OnePersonRoomException()
+        }
+        val winnerUserIdx = Random.nextInt(0, usersCount)
+        return lotteryRepository.save(
+                Lottery(
+                        room.users[winnerUserIdx].user.id!!, room.users[winnerUserIdx].user.nick,
+                        roomId, winnerProposal.id!!
+                )
+        )
     }
 
     private fun joinRoom(room: Room, userId: String): Room {

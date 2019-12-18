@@ -8,8 +8,8 @@ import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
+import org.springframework.util.MultiValueMap
 
 @Aspect
 @Component
@@ -22,7 +22,7 @@ class TokenValidator(
     fun validateToken(joinPoint: JoinPoint) {
         var checked = false
         for (arg in joinPoint.args) {
-            if (arg is HttpHeaders) {
+            if (arg is MultiValueMap<*, *>) {
                 validateAuthorizationHeaders(arg)
                 checked = true
                 break
@@ -33,14 +33,10 @@ class TokenValidator(
         }
     }
 
-    private fun validateAuthorizationHeaders(headers: HttpHeaders) {
-        val userNick = headers.getFirst(NICK_HEADER_NAME)
-        val token = headers.getFirst(TOKEN_HEADER_NAME)
-        if (userNick != null && token != null) {
-            tokenService.validateToken(token, userNick)
-        } else {
-            throw InvalidTokenException()
-        }
+    private fun validateAuthorizationHeaders(headers: MultiValueMap<*, *>) {
+        val userNick = headers[NICK_HEADER_NAME] ?: throw InvalidTokenException()
+        val token = headers[TOKEN_HEADER_NAME] ?: throw InvalidTokenException()
+        tokenService.validateToken(token.first() as String, userNick.first() as String)
     }
 
 }

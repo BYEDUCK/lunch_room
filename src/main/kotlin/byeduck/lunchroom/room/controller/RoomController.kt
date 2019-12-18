@@ -4,8 +4,10 @@ import byeduck.lunchroom.NICK_HEADER_NAME
 import byeduck.lunchroom.TOKEN_HEADER_NAME
 import byeduck.lunchroom.room.controller.request.CreateRoomRequest
 import byeduck.lunchroom.room.controller.request.JoinRoomByIdRequest
+import byeduck.lunchroom.room.controller.request.LotteryRequest
 import byeduck.lunchroom.room.controller.request.UpdateRoomRequest
 import byeduck.lunchroom.room.controller.response.DetailRoomResponse
+import byeduck.lunchroom.room.controller.response.LotteryResponse
 import byeduck.lunchroom.room.controller.response.SimpleRoomResponse
 import byeduck.lunchroom.room.service.RoomService
 import byeduck.lunchroom.token.ValidateToken
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -20,7 +23,9 @@ import javax.validation.Valid
 @RequestMapping(value = ["/rooms"], headers = [NICK_HEADER_NAME, TOKEN_HEADER_NAME])
 class RoomController(
         @Autowired
-        private val roomService: RoomService
+        private val roomService: RoomService,
+        @Autowired
+        private val msgTemplate: SimpMessagingTemplate
 ) {
 
     @PostMapping(value = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -75,5 +80,20 @@ class RoomController(
     ): SimpleRoomResponse {
         return SimpleRoomResponse.fromRoom(roomService.updateRoom(request.roomId, token, request.deadlines))
     }
+
+    @PostMapping(value = ["random"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
+    fun doTheLottery(
+            @RequestHeader requestHeaders: HttpHeaders,
+            @RequestHeader(TOKEN_HEADER_NAME) token: String,
+            @RequestBody @Valid request: LotteryRequest
+    ) {
+        val lottery = roomService.doTheLottery(request.userId, request.roomId, token)
+        msgTemplate.convertAndSend(
+                "/room/lottery/${request.roomId}",
+                LotteryResponse(lottery.userNick, lottery.proposalId)
+        )
+    }
+
 
 }

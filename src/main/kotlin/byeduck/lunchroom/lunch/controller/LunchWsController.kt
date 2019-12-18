@@ -8,22 +8,24 @@ import byeduck.lunchroom.lunch.service.LunchService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.SendTo
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Controller
 
 @Controller
 class LunchWsController(
         @Autowired
-        private val lunchService: LunchService
+        private val lunchService: LunchService,
+        @Autowired
+        private val msgTemplate: SimpMessagingTemplate
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(LunchWsController::class.java)
 
     @MessageMapping("/propose")
-    @SendTo("/room/proposals")
-    fun handleLunchRequests(request: LunchRequest): List<LunchResponse> {
+    fun handleLunchRequests(request: LunchRequest) {
         val processed: MutableList<LunchResponse> = ArrayList()
         when (request.lunchRequestType) {
             LunchRequestType.ADD -> {
@@ -57,13 +59,14 @@ class LunchWsController(
                 ).map { LunchResponse.fromLunchProposal(it) })
             }
         }
-        return processed
+        msgTemplate.convertAndSend("/room/proposals/${request.roomId}", processed)
     }
 
     @MessageExceptionHandler
-    @SendTo("/room/errors")
-    fun handleException(exception: Exception): String? {
-        return exception.message
+    fun handleException(
+            exception: Exception, @Header("simpSessionId") sessionId: String
+    ) {
+        msgTemplate.convertAndSendToUser(sessionId, "/gimme", exception.message!!)
     }
 
 }
