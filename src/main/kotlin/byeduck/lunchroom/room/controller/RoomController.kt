@@ -18,6 +18,7 @@ import org.springframework.http.MediaType
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
+import javax.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping(value = ["/rooms"], headers = [NICK_HEADER_NAME, TOKEN_HEADER_NAME])
@@ -32,9 +33,12 @@ class RoomController(
     @ResponseStatus(HttpStatus.CREATED)
     @ValidateToken
     fun addRoom(
-            @Valid @RequestBody request: CreateRoomRequest, @RequestHeader requestHeaders: HttpHeaders
+            @Valid @RequestBody request: CreateRoomRequest, @RequestHeader requestHeaders: HttpHeaders,
+            @RequestParam(name = "defaults", required = false, defaultValue = "false") defaults: Boolean = false
     ): SimpleRoomResponse {
-        return SimpleRoomResponse.fromRoom(roomService.addRoom(request.name, request.ownerId, request.deadlines))
+        return SimpleRoomResponse.fromRoom(
+                roomService.addRoom(request.name, request.ownerId, request.deadlines, defaults)
+        )
     }
 
     @GetMapping(value = [""], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -67,7 +71,7 @@ class RoomController(
     fun deleteRoom(
             @RequestHeader requestHeaders: HttpHeaders,
             @RequestHeader(TOKEN_HEADER_NAME) token: String,
-            @PathVariable("id") roomId: String
+            @PathVariable("id") @NotBlank roomId: String
     ) {
         roomService.deleteRoom(roomId, token)
     }

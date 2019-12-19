@@ -35,7 +35,7 @@ class RoomServiceImpl(
         private val roomUserStartingPoints: Int
 ) : RoomService {
 
-    override fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room {
+    override fun addRoom(name: String, ownerId: String, deadlines: Deadlines, defaults: Boolean): Room {
         val found = roomsRepository.findByName(name)
         if (found.isPresent) {
             throw RoomAlreadyExistsException(found.get().name)
@@ -47,6 +47,9 @@ class RoomServiceImpl(
             it.rooms.add(insertedRoom.id!!)
             insertedRoom.users.add(RoomUser(it, roomUserStartingPoints))
             usersRepository.save(it)
+            if (defaults) {
+                addDefaults(insertedRoom.id!!)
+            }
             return@map roomsRepository.save(insertedRoom)
         }.orElseThrow { UserNotFoundException(ownerId) }
     }
@@ -106,16 +109,16 @@ class RoomServiceImpl(
 
     override fun doTheLottery(userId: String, roomId: String, token: String): Lottery {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        val usersCount = room.users.size
+        if (usersCount < 2) {
+            throw OnePersonRoomException()
+        }
         validateRoomOwnership(room, token)
         val lunchProposals = lunchRepository.findAllByRoomId(roomId)
         if (lunchProposals.size < 2) {
             throw OneProposalException()
         }
         val winnerProposal = lunchProposals.maxBy { it.ratingSum } ?: throw RuntimeException("Unexpected error")
-        val usersCount = room.users.size
-        if (usersCount < 2) {
-            throw OnePersonRoomException()
-        }
         val winnerUserIdx = Random.nextInt(0, usersCount)
         return lotteryRepository.save(
                 Lottery(
@@ -123,6 +126,12 @@ class RoomServiceImpl(
                         roomId, winnerProposal.id!!
                 )
         )
+    }
+
+    private fun addDefaults(roomId: String) {
+        DefaultLunchProposalsFactory.getDefaults(roomId).forEach {
+            lunchRepository.save(it)
+        }
     }
 
     private fun joinRoom(room: Room, userId: String): Room {

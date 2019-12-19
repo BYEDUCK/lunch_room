@@ -4,7 +4,7 @@ import byeduck.lunchroom.domain.Lottery
 import byeduck.lunchroom.domain.Room
 
 interface RoomService {
-    fun addRoom(name: String, ownerId: String, deadlines: Deadlines): Room
+    fun addRoom(name: String, ownerId: String, deadlines: Deadlines, defaults: Boolean = false): Room
     fun findRoomsByUserId(userId: String): MutableList<Room>
     fun findRoomByName(name: String): Room
     fun joinRoomById(roomId: String, userId: String): Room
