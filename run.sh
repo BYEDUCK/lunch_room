@@ -31,18 +31,18 @@ while test $# -gt 0; do
 
   if test ${doTests} -eq 1 -a ${rebuild} -eq 0; then
        echo "Running integration tests..."
-       mvn integration-test
+       mvn integration-test -Dspring.profiles.active=test
   elif test ${rebuild} -eq 1 -a ${doTests} -eq 0; then
        echo "Rebuilding package..."
        if test ${doUnit} -eq 1; then
         echo "With unit tests..."
-        mvn clean package
+        mvn clean package -Dspring.profiles.active=test
        else
         mvn clean package -DskipTests
        fi
   elif test ${rebuild} -eq 1 -a ${doTests} -eq 1; then
        echo "Running integration tests and rebuilding package..."
-       mvn clean verify
+       mvn clean verify -Dspring.profiles.active=test
   else
        echo "No configuration has been chosen"
   fi
