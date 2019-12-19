@@ -12,5 +12,5 @@
 - -ut : build with unit tests
 - -d : deploy with docker (port 48080)
 ## Or manually run:
-- `mvn clean package`
+- `mvn clean package -Dspring.profiles.active=test`
 - `docker-compose up`
