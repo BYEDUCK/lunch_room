@@ -109,6 +109,9 @@ class RoomServiceImpl(
 
     override fun doTheLottery(userId: String, roomId: String, token: String): Lottery {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        if (System.currentTimeMillis() <= room.postDeadline) {
+            throw LotteryBeforeVotePhaseException()
+        }
         val usersCount = room.users.size
         if (usersCount < 2) {
             throw OnePersonRoomException()
