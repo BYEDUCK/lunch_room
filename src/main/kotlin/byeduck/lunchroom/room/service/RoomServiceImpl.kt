@@ -70,8 +70,10 @@ class RoomServiceImpl(
     }
 
     override fun joinRoomById(roomId: String, userId: String): Room {
-        val room = roomsRepository.findById(roomId)
-                .orElseThrow { RoomNotFoundException(roomId) }
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        if (!room.open) {
+            throw RoomClosedException()
+        }
         return joinRoom(room, userId)
     }
 
@@ -108,6 +110,7 @@ class RoomServiceImpl(
             it.votesCount = 0
             lunchRepository.save(it)
         }
+        room.open = true
         return roomsRepository.save(room)
     }
 
@@ -127,6 +130,8 @@ class RoomServiceImpl(
         }
         val winnerProposal = lunchProposals.maxBy { it.ratingSum } ?: throw RuntimeException("Unexpected error")
         val winnerUserIdx = Random.nextInt(0, usersCount)
+        room.open = false
+        roomsRepository.save(room)
         return lotteryRepository.save(
                 Lottery(
                         room.users[winnerUserIdx].user.id!!, room.users[winnerUserIdx].user.nick,
@@ -149,9 +154,6 @@ class RoomServiceImpl(
     private fun joinRoom(room: Room, userId: String): Room {
         val user = usersRepository.findById(userId)
         return user.map {
-            if (room.signDeadline < System.currentTimeMillis()) {
-                throw JoiningPastDeadlineException(Date(room.signDeadline).toString())
-            }
             if (user.get().rooms.contains(room.id)) {
                 return@map room
             } else {

@@ -10,7 +10,8 @@ data class Room(
         var signDeadline: Long,
         var postDeadline: Long,
         var voteDeadline: Long,
-        var users: MutableList<RoomUser>
+        var users: MutableList<RoomUser>,
+        var open: Boolean = true
 ) {
     constructor(name: String, owner: String, signDeadline: Long, postDeadline: Long, voteDeadline: Long)
             : this(null, name, owner, signDeadline, postDeadline, voteDeadline, emptyList<RoomUser>().toMutableList())

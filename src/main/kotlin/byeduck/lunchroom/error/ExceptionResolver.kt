@@ -39,7 +39,6 @@ class ExceptionResolver {
         when (exception) {
             is ResourceAlreadyExistsException -> errorCode = ErrorCodes.RESOURCE_ALREADY_EXISTS
             is ResourceNotFoundException -> errorCode = ErrorCodes.RESOURCE_NOT_FOUND
-            is JoiningPastDeadlineException -> errorCode = ErrorCodes.PAST_DEADLINE
             is UpdatingRoomWhileVotingException -> errorCode = ErrorCodes.UPDATE_WHILE_VOTE
             is NotEnoughPointsAvailableException -> errorCode = ErrorCodes.NOT_ENOUGH_POINTS
         }
