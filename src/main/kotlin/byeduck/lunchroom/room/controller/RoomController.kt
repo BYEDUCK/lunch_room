@@ -6,11 +6,12 @@ import byeduck.lunchroom.room.controller.request.CreateRoomRequest
 import byeduck.lunchroom.room.controller.request.JoinRoomByIdRequest
 import byeduck.lunchroom.room.controller.request.LotteryRequest
 import byeduck.lunchroom.room.controller.request.UpdateRoomRequest
-import byeduck.lunchroom.room.controller.response.DetailRoomResponse
 import byeduck.lunchroom.room.controller.response.LotteryResponse
-import byeduck.lunchroom.room.controller.response.SimpleRoomResponse
+import byeduck.lunchroom.room.controller.response.RoomResponse
 import byeduck.lunchroom.room.service.RoomService
 import byeduck.lunchroom.token.ValidateToken
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -29,14 +30,16 @@ class RoomController(
         private val msgTemplate: SimpMessagingTemplate
 ) {
 
+    private val logger: Logger = LoggerFactory.getLogger(RoomController::class.java)
+
     @PostMapping(value = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     @ValidateToken
     fun addRoom(
             @Valid @RequestBody request: CreateRoomRequest, @RequestHeader requestHeaders: HttpHeaders,
             @RequestParam(name = "defaults", required = false, defaultValue = "false") defaults: Boolean = false
-    ): SimpleRoomResponse {
-        return SimpleRoomResponse.fromRoom(
+    ): RoomResponse {
+        return RoomResponse.fromRoom(
                 roomService.addRoom(request.name, request.ownerId, request.deadlines, defaults)
         )
     }
@@ -45,16 +48,16 @@ class RoomController(
     @ValidateToken
     fun findRoomsByUserId(
             @RequestParam("userId") userId: String, @RequestHeader requestHeaders: HttpHeaders
-    ): List<SimpleRoomResponse> {
-        return roomService.findRoomsByUserId(userId).map { SimpleRoomResponse.fromRoom(it) }
+    ): List<RoomResponse> {
+        return roomService.findRoomsByUserId(userId).map { RoomResponse.fromRoom(it) }
     }
 
     @GetMapping(value = ["/search"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ValidateToken
     fun findRoomByName(
             @RequestParam("name") roomName: String, @RequestHeader requestHeaders: HttpHeaders
-    ): SimpleRoomResponse {
-        return SimpleRoomResponse.fromRoom(roomService.findRoomByName(roomName))
+    ): RoomResponse {
+        return RoomResponse.fromRoom(roomService.findRoomByName(roomName))
     }
 
     @PostMapping(value = ["join"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -62,8 +65,10 @@ class RoomController(
     fun joinRoomById(
             @Valid @RequestBody request: JoinRoomByIdRequest,
             @RequestHeader requestHeaders: HttpHeaders
-    ): DetailRoomResponse {
-        return DetailRoomResponse.fromRoom(roomService.joinRoomById(request.roomId, request.userId))
+    ): RoomResponse {
+        val room = roomService.joinRoomById(request.roomId, request.userId)
+        logger.info("User {} joined room {}", request.userId, request.roomId)
+        return RoomResponse.fromRoom(room)
     }
 
     @DeleteMapping(value = ["/{id}"])
@@ -81,8 +86,8 @@ class RoomController(
             @Valid @RequestBody request: UpdateRoomRequest,
             @RequestHeader requestHeaders: HttpHeaders,
             @RequestHeader(TOKEN_HEADER_NAME) token: String
-    ): SimpleRoomResponse {
-        return SimpleRoomResponse.fromRoom(roomService.updateRoom(request.roomId, token, request.deadlines))
+    ): RoomResponse {
+        return RoomResponse.fromRoom(roomService.updateRoom(request.roomId, token, request.deadlines))
     }
 
     @PostMapping(value = ["random"], consumes = [MediaType.APPLICATION_JSON_VALUE])
@@ -94,8 +99,7 @@ class RoomController(
     ) {
         val lottery = roomService.doTheLottery(request.userId, request.roomId, token)
         msgTemplate.convertAndSend(
-                "/room/lottery/${request.roomId}",
-                LotteryResponse(lottery.userNick, lottery.proposalId)
+                "/room/lottery/${request.roomId}", LotteryResponse(lottery.userNick, lottery.proposalId)
         )
     }
 

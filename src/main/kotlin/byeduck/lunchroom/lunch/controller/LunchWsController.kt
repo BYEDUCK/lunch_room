@@ -5,6 +5,7 @@ import byeduck.lunchroom.lunch.controller.request.LunchRequest
 import byeduck.lunchroom.lunch.controller.request.LunchRequestType
 import byeduck.lunchroom.lunch.controller.response.LunchResponse
 import byeduck.lunchroom.lunch.service.LunchService
+import byeduck.lunchroom.room.service.RoomService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,11 +20,14 @@ class LunchWsController(
         @Autowired
         private val lunchService: LunchService,
         @Autowired
-        private val msgTemplate: SimpMessagingTemplate
+        private val msgTemplate: SimpMessagingTemplate,
+        @Autowired
+        private val roomService: RoomService
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(LunchWsController::class.java)
 
+    // TODO: return different responses depended on request type
     @MessageMapping("/propose")
     fun handleLunchRequests(request: LunchRequest) {
         val processed: MutableList<LunchResponse> = ArrayList()
@@ -50,6 +54,7 @@ class LunchWsController(
                                 request.proposalId ?: throw RequiredParameterEmptyException("proposal id"),
                                 request.rating ?: throw RequiredParameterEmptyException("rating")
                         )))
+                roomService.notifyRoomUsersAboutChange(request.roomId)
             }
             LunchRequestType.FIND -> {
                 logger.info("Finding all lunch proposal for user {} in room {}", request.userId, request.roomId)
@@ -57,6 +62,7 @@ class LunchWsController(
                         request.userId,
                         request.roomId
                 ).map { LunchResponse.fromLunchProposal(it) })
+                roomService.notifyRoomUsersAboutChange(request.roomId)
             }
         }
         msgTemplate.convertAndSend("/room/proposals/${request.roomId}", processed)

@@ -2,7 +2,7 @@ package byeduck.lunchroom.room.controller.response
 
 import byeduck.lunchroom.domain.Room
 
-data class SimpleRoomResponse(
+data class RoomResponse(
         val roomId: String,
         val roomName: String,
         val ownerId: String,
@@ -11,8 +11,8 @@ data class SimpleRoomResponse(
         val voteDeadline: Long
 ) {
     companion object {
-        fun fromRoom(room: Room): SimpleRoomResponse {
-            return SimpleRoomResponse(
+        fun fromRoom(room: Room): RoomResponse {
+            return RoomResponse(
                     room.id!!, room.name, room.owner, room.signDeadline, room.postDeadline, room.voteDeadline
             )
         }

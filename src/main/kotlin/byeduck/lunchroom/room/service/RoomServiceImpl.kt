@@ -8,12 +8,14 @@ import byeduck.lunchroom.repositories.LotteryRepository
 import byeduck.lunchroom.repositories.LunchRepository
 import byeduck.lunchroom.repositories.RoomsRepository
 import byeduck.lunchroom.repositories.UsersRepository
+import byeduck.lunchroom.room.controller.response.SimpleUserResponse
 import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
 import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.token.service.TokenService
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.collections.ArrayList
@@ -31,6 +33,8 @@ class RoomServiceImpl(
         private val lotteryRepository: LotteryRepository,
         @Autowired
         private val tokenService: TokenService,
+        @Autowired
+        private val msgTemplate: SimpMessagingTemplate,
         @Value("\${user.start.points}")
         private val roomUserStartingPoints: Int
 ) : RoomService {
@@ -129,6 +133,11 @@ class RoomServiceImpl(
                         roomId, winnerProposal.id!!
                 )
         )
+    }
+
+    override fun notifyRoomUsersAboutChange(roomId: String) {
+        val room = roomsRepository.findById(roomId).orElseThrow { UserNotFoundException(roomId) }
+        msgTemplate.convertAndSend("/room/users/$roomId", room.users.map { SimpleUserResponse.fromUser(it) })
     }
 
     private fun addDefaults(roomId: String) {
