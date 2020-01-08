@@ -9,6 +9,7 @@ data class LunchRequest(
         var roomId: String,
         var userId: String,
         var title: String?,
+        var menuUrl: String?,
         var menuItems: List<MenuItem> = ArrayList(),
         var rating: Int?
 )

@@ -16,9 +16,10 @@ internal class LunchRepositoryIT {
     internal fun testFindAllByRoomId() {
         val roomId = "123"
         val title = "title"
-        val proposal1 = LunchProposal(roomId, title, ArrayList())
-        val proposal2 = LunchProposal(roomId, title, ArrayList())
-        val proposal3 = LunchProposal(roomId, title, ArrayList())
+        val url = "url"
+        val proposal1 = LunchProposal(roomId, title, url, ArrayList())
+        val proposal2 = LunchProposal(roomId, title, url, ArrayList())
+        val proposal3 = LunchProposal(roomId, title, url, ArrayList())
         val saved1 = lunchRepository.insert(proposal1)
         val saved2 = lunchRepository.insert(proposal2)
         val saved3 = lunchRepository.insert(proposal3)

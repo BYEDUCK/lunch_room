@@ -6,6 +6,7 @@ import byeduck.lunchroom.domain.MenuItem
 data class LunchResponse(
         val proposalId: String,
         val title: String,
+        val menuUrl: String,
         val menuItems: List<MenuItem>,
         val ratingSum: Int,
         val votesCount: Int
@@ -13,7 +14,8 @@ data class LunchResponse(
     companion object {
         fun fromLunchProposal(lunchProposal: LunchProposal): LunchResponse {
             return LunchResponse(
-                    lunchProposal.id!!, lunchProposal.title, lunchProposal.menuItems, lunchProposal.ratingSum, lunchProposal.votesCount
+                    lunchProposal.id!!, lunchProposal.title, lunchProposal.menuUrl,
+                    lunchProposal.menuItems, lunchProposal.ratingSum, lunchProposal.votesCount
             )
         }
     }

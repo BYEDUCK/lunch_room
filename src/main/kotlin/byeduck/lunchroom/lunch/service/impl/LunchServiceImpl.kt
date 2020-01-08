@@ -27,14 +27,16 @@ class LunchServiceImpl(
         private val roomsRepository: RoomsRepository
 ) : LunchService {
 
-    override fun addLunchProposal(userId: String, roomId: String, title: String, menuItems: List<MenuItem>): LunchProposal {
+    override fun addLunchProposal(
+            userId: String, roomId: String, title: String, menuUrl: String, menuItems: List<MenuItem>
+    ): LunchProposal {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
         if (!isPostPhase(room)) {
             throw InvalidPhaseException()
         }
         val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
-        return lunchRepository.insert(LunchProposal(roomId, title, menuItems))
+        return lunchRepository.insert(LunchProposal(roomId, title, menuUrl, menuItems))
     }
 
     override fun voteForProposal(userId: String, roomId: String, proposalId: String, rating: Int): LunchProposal {

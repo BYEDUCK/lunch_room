@@ -39,6 +39,7 @@ class LunchWsController(
                                 request.userId,
                                 request.roomId,
                                 request.title ?: throw RequiredParameterEmptyException("proposal title"),
+                                request.menuUrl ?: throw RequiredParameterEmptyException("proposal menuUrl"),
                                 request.menuItems
                         )))
             }
