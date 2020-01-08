@@ -44,6 +44,21 @@ class DefaultLunchProposalsFactory {
                             listOfNotNull(
                                     MenuItem(meatLunchDesc, 19.00),
                                     MenuItem(vegeLunchDesc, 19.00)
+                            )),
+                    LunchProposal(
+                            roomId,
+                            "Shahi curry (vege+meat 21zł min 5 osób)",
+                            "https://www.facebook.com/ShahiCurryRestauracja/",
+                            listOfNotNull(
+                                    MenuItem(meatLunchDesc, 22.00),
+                                    MenuItem(vegeLunchDesc, 22.00)
+                            )),
+                    LunchProposal(
+                            roomId,
+                            "Warsaw burger",
+                            "http://warsawburgerbar.pl/#wolowina",
+                            listOfNotNull(
+                                    MenuItem("Klasyk", 21.00)
                             ))
             )
         }
