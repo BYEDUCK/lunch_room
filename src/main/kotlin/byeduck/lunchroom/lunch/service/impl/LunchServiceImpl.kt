@@ -28,25 +28,21 @@ class LunchServiceImpl(
 ) : LunchService {
 
     override fun addLunchProposal(userId: String, roomId: String, title: String, menuItems: List<MenuItem>): LunchProposal {
-        val room = roomsRepository.findById(roomId)
-                .orElseThrow { RoomNotFoundException(roomId) }
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
         if (!isPostPhase(room)) {
             throw InvalidPhaseException()
         }
-        val user = usersRepository.findById(userId)
-                .orElseThrow { UserNotFoundException(userId) }
+        val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
         return lunchRepository.insert(LunchProposal(roomId, title, menuItems))
     }
 
     override fun voteForProposal(userId: String, roomId: String, proposalId: String, rating: Int): LunchProposal {
-        val room = roomsRepository.findById(roomId)
-                .orElseThrow { RoomNotFoundException(roomId) }
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
         if (!isVotePhase(room)) {
             throw InvalidPhaseException()
         }
-        val user = usersRepository.findById(userId)
-                .orElseThrow { UserNotFoundException(userId) }
+        val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
         val roomUserIndex = room.users.indexOf(RoomUser(user))
         val lunchProposal = lunchRepository.findById(proposalId)
@@ -64,10 +60,8 @@ class LunchServiceImpl(
     }
 
     override fun findAllByRoomId(userId: String, roomId: String): List<LunchProposal> {
-        val room = roomsRepository.findById(roomId)
-                .orElseThrow { RoomNotFoundException(roomId) }
-        val user = usersRepository.findById(userId)
-                .orElseThrow { UserNotFoundException(userId) }
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
         return lunchRepository.findAllByRoomId(roomId)
     }
