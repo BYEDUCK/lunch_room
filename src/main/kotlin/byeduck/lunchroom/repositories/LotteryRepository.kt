@@ -5,4 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 
 interface LotteryRepository : MongoRepository<Lottery, String> {
     fun countByUserId(userId: String): Int
+    fun findAllByRoomId(roomId: String): List<Lottery>
 }

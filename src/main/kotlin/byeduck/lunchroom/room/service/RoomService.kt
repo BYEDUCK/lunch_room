@@ -12,4 +12,5 @@ interface RoomService {
     fun updateRoom(roomId: String, token: String, newDeadlines: Deadlines): Room
     fun doTheLottery(userId: String, roomId: String, token: String): Lottery
     fun notifyRoomUsersAboutChange(roomId: String)
+    fun getSummaries(userId: String, roomId: String): List<Summary>
 }

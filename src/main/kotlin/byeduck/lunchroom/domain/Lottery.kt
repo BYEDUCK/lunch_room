@@ -8,8 +8,9 @@ data class Lottery(
         var userId: String,
         var userNick: String,
         var roomId: String,
-        var proposalId: String
+        var proposalId: String,
+        var timestamp: Long
 ) {
     constructor(userId: String, userNick: String, roomId: String, proposalId: String) :
-            this(null, userId, userNick, roomId, proposalId)
+            this(null, userId, userNick, roomId, proposalId, System.currentTimeMillis())
 }

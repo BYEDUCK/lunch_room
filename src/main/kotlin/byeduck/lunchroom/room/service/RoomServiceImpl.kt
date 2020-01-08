@@ -4,6 +4,7 @@ import byeduck.lunchroom.domain.Lottery
 import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.domain.RoomUser
 import byeduck.lunchroom.error.exceptions.*
+import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
 import byeduck.lunchroom.repositories.LotteryRepository
 import byeduck.lunchroom.repositories.LunchRepository
 import byeduck.lunchroom.repositories.RoomsRepository
@@ -17,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
-import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 @Service
@@ -95,8 +94,8 @@ class RoomServiceImpl(
         val room = roomsRepository.findById(roomId)
                 .orElseThrow { throw RoomNotFoundException(roomId) }
         validateRoomOwnership(room, token)
-        if (room.voteDeadline > System.currentTimeMillis()) {
-            throw UpdatingRoomWhileVotingException(Date(room.voteDeadline).toString())
+        if (room.open) {
+            throw UpdatingOpenRoomException()
         }
         room.signDeadline = newDeadlines.signDeadline
         room.postDeadline = newDeadlines.postDeadline
@@ -143,6 +142,21 @@ class RoomServiceImpl(
     override fun notifyRoomUsersAboutChange(roomId: String) {
         val room = roomsRepository.findById(roomId).orElseThrow { UserNotFoundException(roomId) }
         msgTemplate.convertAndSend("/room/users/$roomId", room.users.map { SimpleUserResponse.fromUser(it) })
+    }
+
+    override fun getSummaries(userId: String, roomId: String): List<Summary> {
+        val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        if (room.open) {
+            throw OpenRoomSummaryException()
+        }
+        if (!user.rooms.contains(roomId)) {
+            throw UnauthorizedException()
+        }
+        return lotteryRepository.findAllByRoomId(roomId).map {
+            val proposal = lunchRepository.findById(it.proposalId).orElseThrow { LunchProposalNotFoundException(it.proposalId) }
+            Summary(it.timestamp, it.userNick, proposal.title)
+        }
     }
 
     private fun addDefaults(roomId: String) {

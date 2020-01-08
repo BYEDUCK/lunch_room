@@ -2,12 +2,10 @@ package byeduck.lunchroom.room.controller
 
 import byeduck.lunchroom.NICK_HEADER_NAME
 import byeduck.lunchroom.TOKEN_HEADER_NAME
-import byeduck.lunchroom.room.controller.request.CreateRoomRequest
-import byeduck.lunchroom.room.controller.request.JoinRoomByIdRequest
-import byeduck.lunchroom.room.controller.request.LotteryRequest
-import byeduck.lunchroom.room.controller.request.UpdateRoomRequest
+import byeduck.lunchroom.room.controller.request.*
 import byeduck.lunchroom.room.controller.response.LotteryResponse
 import byeduck.lunchroom.room.controller.response.RoomResponse
+import byeduck.lunchroom.room.controller.response.SummaryResponse
 import byeduck.lunchroom.room.service.RoomService
 import byeduck.lunchroom.token.ValidateToken
 import org.slf4j.Logger
@@ -103,5 +101,12 @@ class RoomController(
         )
     }
 
-
+    @PostMapping(value = ["summary"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
+    fun getSummaries(
+            @RequestHeader requestHeaders: HttpHeaders,
+            @RequestBody @Valid request: SummaryRequest
+    ): SummaryResponse {
+        return SummaryResponse(roomService.getSummaries(request.userId, request.roomId))
+    }
 }
