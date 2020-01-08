@@ -45,7 +45,7 @@ internal class LunchServiceImplIT {
     private val userNick = "testNick"
     private val roomName = "testName"
     private val proposalTitle = "testTitle"
-    private val proposalUrl = "testUrl"
+    private val proposalUrl = "http://testUrl"
     private val delay = 500
     private lateinit var user: User
     private lateinit var room: Room
