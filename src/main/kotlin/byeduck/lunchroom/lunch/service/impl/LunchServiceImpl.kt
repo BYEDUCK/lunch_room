@@ -5,6 +5,7 @@ import byeduck.lunchroom.error.exceptions.AlreadyVotedException
 import byeduck.lunchroom.error.exceptions.InvalidPhaseException
 import byeduck.lunchroom.error.exceptions.InvalidRoomException
 import byeduck.lunchroom.error.exceptions.NotEnoughPointsAvailableException
+import byeduck.lunchroom.lunch.exceptions.InvalidProposalException
 import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
 import byeduck.lunchroom.lunch.service.LunchService
 import byeduck.lunchroom.repositories.LunchRepository
@@ -66,6 +67,17 @@ class LunchServiceImpl(
         val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
         return lunchRepository.findAllByRoomId(roomId)
+    }
+
+    override fun deleteProposal(userId: String, roomId: String, proposalId: String) {
+        val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        validateUserInRoom(user, room)
+        val proposal = lunchRepository.findById(proposalId).orElseThrow { LunchProposalNotFoundException(proposalId) }
+        if (proposal.roomId != roomId) {
+            throw InvalidProposalException(proposalId)
+        }
+        lunchRepository.delete(proposal)
     }
 
     private fun validateUserInRoom(user: User, room: Room) {

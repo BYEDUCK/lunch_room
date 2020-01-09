@@ -55,7 +55,7 @@ class LunchWsController(
                                 request.proposalId ?: throw RequiredParameterEmptyException("proposal id"),
                                 request.rating ?: throw RequiredParameterEmptyException("rating")
                         )))
-                roomService.notifyRoomUsersAboutChange(request.roomId)
+                roomService.notifyRoomUsersAboutUserChange(request.roomId)
             }
             LunchRequestType.FIND -> {
                 logger.info("Finding all lunch proposal for user {} in room {}", request.userId, request.roomId)
@@ -63,7 +63,19 @@ class LunchWsController(
                         request.userId,
                         request.roomId
                 ).map { LunchResponse.fromLunchProposal(it) })
-                roomService.notifyRoomUsersAboutChange(request.roomId)
+                roomService.notifyRoomUsersAboutUserChange(request.roomId)
+            }
+            LunchRequestType.DELETE -> {
+                logger.info("Deleting proposal {} by user {} in room {}", request.proposalId, request.userId, request.roomId)
+                lunchService.deleteProposal(
+                        request.userId,
+                        request.roomId,
+                        request.proposalId ?: throw RequiredParameterEmptyException("proposal id")
+                )
+                processed.addAll(lunchService.findAllByRoomId(
+                        request.userId,
+                        request.roomId
+                ).map { LunchResponse.fromLunchProposal(it) })
             }
         }
         msgTemplate.convertAndSend("/room/proposals/${request.roomId}", processed)

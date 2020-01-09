@@ -31,4 +31,10 @@ interface LunchService {
             @NotBlank(message = USER_ID_CANNOT_BE_EMPTY_MSG) userId: String,
             @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String
     ): List<LunchProposal>
+
+    fun deleteProposal(
+            @NotBlank(message = USER_ID_CANNOT_BE_EMPTY_MSG) userId: String,
+            @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String,
+            @NotBlank(message = "Proposal id $CANNOT_BE_EMPTY_MSG") proposalId: String
+    )
 }

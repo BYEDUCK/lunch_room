@@ -139,7 +139,7 @@ class RoomServiceImpl(
         )
     }
 
-    override fun notifyRoomUsersAboutChange(roomId: String) {
+    override fun notifyRoomUsersAboutUserChange(roomId: String) {
         val room = roomsRepository.findById(roomId).orElseThrow { UserNotFoundException(roomId) }
         msgTemplate.convertAndSend("/room/users/$roomId", room.users.map { SimpleUserResponse.fromUser(it) })
     }
