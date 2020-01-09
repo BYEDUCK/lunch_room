@@ -8,14 +8,15 @@ data class LunchResponse(
         val title: String,
         val menuUrl: String,
         val menuItems: List<MenuItem>,
+        val proposalOwnerId: String,
         val ratingSum: Int,
         val votesCount: Int
 ) {
     companion object {
         fun fromLunchProposal(lunchProposal: LunchProposal): LunchResponse {
             return LunchResponse(
-                    lunchProposal.id!!, lunchProposal.title, lunchProposal.menuUrl,
-                    lunchProposal.menuItems, lunchProposal.ratingSum, lunchProposal.votesCount
+                    lunchProposal.id!!, lunchProposal.title, lunchProposal.menuUrl, lunchProposal.menuItems,
+                    lunchProposal.proposalOwnerId, lunchProposal.ratingSum, lunchProposal.votesCount
             )
         }
     }

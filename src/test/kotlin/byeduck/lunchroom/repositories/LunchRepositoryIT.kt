@@ -17,9 +17,10 @@ internal class LunchRepositoryIT {
         val roomId = "123"
         val title = "title"
         val url = "url"
-        val proposal1 = LunchProposal(roomId, title, url, ArrayList())
-        val proposal2 = LunchProposal(roomId, title, url, ArrayList())
-        val proposal3 = LunchProposal(roomId, title, url, ArrayList())
+        val ownerId = "123"
+        val proposal1 = LunchProposal(roomId, title, url, ArrayList(), ownerId)
+        val proposal2 = LunchProposal(roomId, title, url, ArrayList(), ownerId)
+        val proposal3 = LunchProposal(roomId, title, url, ArrayList(), ownerId)
         val saved1 = lunchRepository.insert(proposal1)
         val saved2 = lunchRepository.insert(proposal2)
         val saved3 = lunchRepository.insert(proposal3)

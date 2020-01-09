@@ -10,7 +10,7 @@ class DefaultLunchProposalsFactory {
         private const val vegeLunchDesc = "Lunch vege"
         private const val meatLunchDesc = "Lunch mięsny"
 
-        fun getDefaults(roomId: String): List<LunchProposal> {
+        fun getDefaults(roomId: String, ownerId: String): List<LunchProposal> {
             return listOfNotNull(
                     LunchProposal(
                             roomId,
@@ -19,7 +19,7 @@ class DefaultLunchProposalsFactory {
                             listOfNotNull(
                                     MenuItem(meatLunchDesc, 22.40),
                                     MenuItem(vegeLunchDesc, 22.40)
-                            )),
+                            ), ownerId),
                     LunchProposal(
                             roomId,
                             "Katmandu",
@@ -28,7 +28,7 @@ class DefaultLunchProposalsFactory {
                                     MenuItem(meatLunchDesc, 21.00),
                                     MenuItem(vegeLunchDesc, 21.00),
                                     MenuItem("Lunch jagnięcina", 27.00)
-                            )),
+                            ), ownerId),
                     LunchProposal(
                             roomId,
                             "Rasoi",
@@ -36,7 +36,7 @@ class DefaultLunchProposalsFactory {
                             listOfNotNull(
                                     MenuItem(meatLunchDesc, 20.00),
                                     MenuItem(vegeLunchDesc, 20.00)
-                            )),
+                            ), ownerId),
                     LunchProposal(
                             roomId,
                             "Himalayan yeti",
@@ -44,7 +44,7 @@ class DefaultLunchProposalsFactory {
                             listOfNotNull(
                                     MenuItem(meatLunchDesc, 19.00),
                                     MenuItem(vegeLunchDesc, 19.00)
-                            )),
+                            ), ownerId),
                     LunchProposal(
                             roomId,
                             "Shahi curry (vege+meat 21zł min 5 osób)",
@@ -52,14 +52,14 @@ class DefaultLunchProposalsFactory {
                             listOfNotNull(
                                     MenuItem(meatLunchDesc, 22.00),
                                     MenuItem(vegeLunchDesc, 22.00)
-                            )),
+                            ), ownerId),
                     LunchProposal(
                             roomId,
                             "Warsaw burger",
                             "http://warsawburgerbar.pl/#wolowina",
                             listOfNotNull(
                                     MenuItem("Klasyk", 21.00)
-                            ))
+                            ), ownerId)
             )
         }
     }

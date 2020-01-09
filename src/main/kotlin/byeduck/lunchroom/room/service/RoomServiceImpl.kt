@@ -51,7 +51,7 @@ class RoomServiceImpl(
             insertedRoom.users.add(RoomUser(it, roomUserStartingPoints))
             usersRepository.save(it)
             if (defaults) {
-                addDefaults(insertedRoom.id!!)
+                addDefaults(insertedRoom.id!!, ownerId)
             }
             return@map roomsRepository.save(insertedRoom)
         }.orElseThrow { UserNotFoundException(ownerId) }
@@ -159,8 +159,8 @@ class RoomServiceImpl(
         }
     }
 
-    private fun addDefaults(roomId: String) {
-        DefaultLunchProposalsFactory.getDefaults(roomId).forEach {
+    private fun addDefaults(roomId: String, ownerId: String) {
+        DefaultLunchProposalsFactory.getDefaults(roomId, ownerId).forEach {
             lunchRepository.save(it)
         }
     }

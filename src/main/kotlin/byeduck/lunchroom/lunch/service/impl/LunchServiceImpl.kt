@@ -36,7 +36,7 @@ class LunchServiceImpl(
         }
         val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
-        return lunchRepository.insert(LunchProposal(roomId, title, menuUrl, menuItems))
+        return lunchRepository.insert(LunchProposal(roomId, title, menuUrl, menuItems, userId))
     }
 
     override fun voteForProposal(userId: String, roomId: String, proposalId: String, rating: Int): LunchProposal {

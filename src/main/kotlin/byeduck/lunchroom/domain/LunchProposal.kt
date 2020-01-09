@@ -9,16 +9,16 @@ data class LunchProposal(
         var title: String,
         var menuUrl: String,
         var menuItems: List<MenuItem>,
+        var proposalOwnerId: String,
         var ratingSum: Int = 0,
         var votesCount: Int = 0
 ) {
-    constructor(roomId: String, title: String, menuUrl: String, menuItems: List<MenuItem>)
-            : this(null, roomId, title, menuUrl, menuItems)
+    constructor(roomId: String, title: String, menuUrl: String, menuItems: List<MenuItem>, proposalOwnerId: String)
+            : this(null, roomId, title, menuUrl, menuItems, proposalOwnerId)
 
     fun voteFor(rating: Int): LunchProposal {
-        val proposal = LunchProposal(this.id, this.roomId, this.title, this.menuUrl, this.menuItems, this.ratingSum, this.votesCount)
-        proposal.votesCount++
-        proposal.ratingSum += rating
-        return proposal
+        this.votesCount++
+        this.ratingSum += rating
+        return this
     }
 }
