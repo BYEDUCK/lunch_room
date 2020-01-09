@@ -2,6 +2,8 @@ package byeduck.lunchroom.user.controller
 
 import byeduck.lunchroom.user.service.UserAuthenticationService
 import byeduck.lunchroom.user.service.UserService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping(value = ["/users"])
+@RequestMapping(value = ["users"])
 class UserController(
         @Autowired
         private val userAuthenticationService: UserAuthenticationService,
@@ -18,14 +20,18 @@ class UserController(
         private val userService: UserService
 ) {
 
-    @PostMapping(value = ["/signUp"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    private val logger: Logger = LoggerFactory.getLogger(UserController::class.java)
+
+    @PostMapping(value = ["signUp"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     fun signUp(@Valid @RequestBody signUpRequest: SignRequest) {
+        logger.info("Sign up by user \"{}\"", signUpRequest.nick)
         userAuthenticationService.signUp(signUpRequest.nick, signUpRequest.password)
     }
 
     @PostMapping(value = ["signIn"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun signIn(@RequestBody signRequest: SignRequest): SignResponse {
+        logger.info("Sign in by user \"{}\"", signRequest.nick)
         return userAuthenticationService.signIn(signRequest.nick, signRequest.password)
     }
 
