@@ -38,4 +38,8 @@ interface LunchService {
             @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String,
             @NotBlank(message = PROPOSAL_ID_CANNOT_BE_EMPTY_MSG) proposalId: String
     )
+
+    fun getProposalCount(
+            @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String
+    ): Int
 }

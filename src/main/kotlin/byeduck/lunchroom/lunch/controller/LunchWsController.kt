@@ -3,6 +3,7 @@ package byeduck.lunchroom.lunch.controller
 import byeduck.lunchroom.error.exceptions.RequiredParameterEmptyException
 import byeduck.lunchroom.lunch.controller.request.LunchRequest
 import byeduck.lunchroom.lunch.controller.request.LunchRequestType
+import byeduck.lunchroom.lunch.controller.response.LunchProposalDTO
 import byeduck.lunchroom.lunch.controller.response.LunchResponse
 import byeduck.lunchroom.lunch.service.LunchService
 import byeduck.lunchroom.room.service.RoomService
@@ -30,11 +31,11 @@ class LunchWsController(
     // TODO: return different responses depended on request type
     @MessageMapping("/propose")
     fun handleLunchRequests(request: LunchRequest) {
-        val processed: MutableList<LunchResponse> = ArrayList()
+        val processed: MutableList<LunchProposalDTO> = ArrayList()
         when (request.lunchRequestType) {
             LunchRequestType.ADD -> {
                 logger.info("Adding new lunch proposal by user {} in room {}", request.userId, request.roomId)
-                processed.add(LunchResponse.fromLunchProposal(
+                processed.add(LunchProposalDTO.fromLunchProposal(
                         lunchService.addLunchProposal(
                                 request.userId,
                                 request.roomId,
@@ -48,7 +49,7 @@ class LunchWsController(
                         "Voting for lunch proposal {} by user {} with {} rating",
                         request.proposalId, request.userId, request.rating
                 )
-                processed.add(LunchResponse.fromLunchProposal(
+                processed.add(LunchProposalDTO.fromLunchProposal(
                         lunchService.voteForProposal(
                                 request.userId,
                                 request.roomId,
@@ -62,7 +63,7 @@ class LunchWsController(
                 processed.addAll(lunchService.findAllByRoomId(
                         request.userId,
                         request.roomId
-                ).map { LunchResponse.fromLunchProposal(it) })
+                ).map { LunchProposalDTO.fromLunchProposal(it) })
                 roomService.notifyRoomUsersAboutUserChange(request.roomId)
             }
             LunchRequestType.DELETE -> {
@@ -75,10 +76,11 @@ class LunchWsController(
                 processed.addAll(lunchService.findAllByRoomId(
                         request.userId,
                         request.roomId
-                ).map { LunchResponse.fromLunchProposal(it) })
+                ).map { LunchProposalDTO.fromLunchProposal(it) })
             }
         }
-        msgTemplate.convertAndSend("/room/proposals/${request.roomId}", processed)
+        val total = lunchService.getProposalCount(request.roomId)
+        msgTemplate.convertAndSend("/room/proposals/${request.roomId}", LunchResponse(total, processed))
     }
 
     @MessageExceptionHandler

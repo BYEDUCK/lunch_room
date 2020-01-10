@@ -77,7 +77,15 @@ class LunchServiceImpl(
         if (proposal.roomId != roomId) {
             throw InvalidProposalException(proposalId)
         }
-        lunchRepository.delete(proposal)
+        if (userId == room.owner || (userId == proposal.proposalOwnerId && isPostPhase(room))) {
+            lunchRepository.delete(proposal)
+        } else {
+            throw InvalidPhaseException()
+        }
+    }
+
+    override fun getProposalCount(roomId: String): Int {
+        return lunchRepository.findAllByRoomId(roomId).size
     }
 
     private fun validateUserInRoom(user: User, room: Room) {
