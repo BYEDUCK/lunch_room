@@ -89,7 +89,7 @@ class LunchServiceImpl(
     }
 
     override fun getProposalCount(roomId: String): Int {
-        return lunchRepository.findAllByRoomId(roomId).size
+        return lunchRepository.countByRoomId(roomId)
     }
 
     private fun validateUserInRoom(user: User, room: Room) {
