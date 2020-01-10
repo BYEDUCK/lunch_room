@@ -1,10 +1,7 @@
 package byeduck.lunchroom.lunch.service.impl
 
 import byeduck.lunchroom.domain.*
-import byeduck.lunchroom.error.exceptions.AlreadyVotedException
-import byeduck.lunchroom.error.exceptions.InvalidPhaseException
-import byeduck.lunchroom.error.exceptions.InvalidRoomException
-import byeduck.lunchroom.error.exceptions.NotEnoughPointsAvailableException
+import byeduck.lunchroom.error.exceptions.*
 import byeduck.lunchroom.lunch.exceptions.InvalidProposalException
 import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
 import byeduck.lunchroom.lunch.service.LunchService
@@ -79,8 +76,12 @@ class LunchServiceImpl(
         }
         if (userId == room.owner || (userId == proposal.proposalOwnerId && isPostPhase(room))) {
             lunchRepository.delete(proposal)
+            room.users.forEach {
+                it.votes.remove(Vote(proposalId))
+            }
+            roomsRepository.save(room)
         } else {
-            throw InvalidPhaseException()
+            throw UnauthorizedException()
         }
     }
 
