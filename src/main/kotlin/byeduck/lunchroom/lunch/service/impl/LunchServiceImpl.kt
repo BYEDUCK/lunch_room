@@ -42,6 +42,9 @@ class LunchServiceImpl(
         if (!isVotePhase(room)) {
             throw InvalidPhaseException()
         }
+        if (!room.open) {
+            throw RoomClosedException()
+        }
         val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         validateUserInRoom(user, room)
         val roomUserIndex = room.users.indexOf(RoomUser(user))
