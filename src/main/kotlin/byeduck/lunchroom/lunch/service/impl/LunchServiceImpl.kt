@@ -74,10 +74,8 @@ class LunchServiceImpl(
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
         validateUserInRoom(user, room)
         val proposal = lunchRepository.findById(proposalId).orElseThrow { LunchProposalNotFoundException(proposalId) }
-        if (proposal.roomId != roomId) {
-            throw InvalidProposalException(proposalId)
-        }
-        if (userId == room.owner || (userId == proposal.proposalOwnerId && isPostPhase(room))) {
+        validateProposalInRoom(proposal, room)
+        if (isUserEligibleToModifyProposal(userId, proposal, room)) {
             lunchRepository.delete(proposal)
             room.users.forEach {
                 it.votes.remove(Vote(proposalId))
@@ -88,8 +86,36 @@ class LunchServiceImpl(
         }
     }
 
+    override fun editProposal(
+            userId: String, roomId: String, proposalId: String, title: String, menuUrl: String, menuItems: List<MenuItem>
+    ): LunchProposal {
+        val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        validateUserInRoom(user, room)
+        val proposal = lunchRepository.findById(proposalId).orElseThrow { LunchProposalNotFoundException(proposalId) }
+        validateProposalInRoom(proposal, room)
+        if (isUserEligibleToModifyProposal(userId, proposal, room)) {
+            return lunchRepository.save(LunchProposal(
+                    proposalId, roomId, title, menuUrl, menuItems,
+                    proposal.proposalOwnerId, proposal.ratingSum, proposal.votesCount
+            ))
+        } else {
+            throw UnauthorizedException()
+        }
+    }
+
     override fun getProposalCount(roomId: String): Int {
         return lunchRepository.countByRoomId(roomId)
+    }
+
+    private fun validateProposalInRoom(proposal: LunchProposal, room: Room) {
+        if (proposal.roomId != room.id) {
+            throw InvalidProposalException(proposal.id!!)
+        }
+    }
+
+    private fun isUserEligibleToModifyProposal(userId: String, proposal: LunchProposal, room: Room): Boolean {
+        return userId == room.owner || (userId == proposal.proposalOwnerId && isPostPhase(room))
     }
 
     private fun validateUserInRoom(user: User, room: Room) {

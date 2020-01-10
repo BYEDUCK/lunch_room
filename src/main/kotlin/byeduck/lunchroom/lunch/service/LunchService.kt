@@ -39,6 +39,15 @@ interface LunchService {
             @NotBlank(message = PROPOSAL_ID_CANNOT_BE_EMPTY_MSG) proposalId: String
     )
 
+    fun editProposal(
+            @NotBlank(message = USER_ID_CANNOT_BE_EMPTY_MSG) userId: String,
+            @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String,
+            @NotBlank(message = PROPOSAL_ID_CANNOT_BE_EMPTY_MSG) proposalId: String,
+            @NotBlank(message = "Proposal's title $CANNOT_BE_EMPTY_MSG") title: String,
+            @NotBlank(message = "Proposal's menuUrl $CANNOT_BE_EMPTY_MSG") @URL menuUrl: String,
+            @Valid menuItems: List<MenuItem>
+    ): LunchProposal
+
     fun getProposalCount(
             @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String
     ): Int
