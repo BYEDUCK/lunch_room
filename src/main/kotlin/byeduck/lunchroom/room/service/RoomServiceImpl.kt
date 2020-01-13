@@ -130,7 +130,8 @@ class RoomServiceImpl(
         if (lunchProposals.size < 2) {
             throw OneProposalException()
         }
-        val winnerProposal = lunchProposals.maxBy { it.ratingSum } ?: throw RuntimeException("Unexpected error")
+        val winnerProposal = lunchProposals.maxBy { it.ratingSum + it.votesCount }
+                ?: throw RuntimeException("Unexpected error")
         val winnerUserIdx = Random.nextInt(0, usersCount)
         room.open = false
         roomsRepository.save(room)
