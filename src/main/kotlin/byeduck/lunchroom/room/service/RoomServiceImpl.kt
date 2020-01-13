@@ -5,6 +5,7 @@ import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.domain.RoomUser
 import byeduck.lunchroom.error.exceptions.*
 import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
+import byeduck.lunchroom.lunch.service.DefaultLunchProposalsFactory
 import byeduck.lunchroom.repositories.LotteryRepository
 import byeduck.lunchroom.repositories.LunchRepository
 import byeduck.lunchroom.repositories.RoomsRepository
@@ -32,6 +33,8 @@ class RoomServiceImpl(
         private val lotteryRepository: LotteryRepository,
         @Autowired
         private val tokenService: TokenService,
+        @Autowired
+        private val defaultLunchProposalsFactory: DefaultLunchProposalsFactory,
         @Autowired
         private val msgTemplate: SimpMessagingTemplate,
         @Value("\${user.start.points}")
@@ -160,7 +163,7 @@ class RoomServiceImpl(
     }
 
     private fun addDefaults(roomId: String, ownerId: String) {
-        DefaultLunchProposalsFactory.getDefaults(roomId, ownerId).forEach {
+        defaultLunchProposalsFactory.getDefaults(roomId, ownerId).forEach {
             lunchRepository.save(it)
         }
     }
