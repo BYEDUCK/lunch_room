@@ -4,13 +4,13 @@ import byeduck.lunchroom.domain.LunchProposal
 import byeduck.lunchroom.domain.MenuItem
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.DayOfWeek
-import java.time.LocalDate
 
 @Service
 class DefaultLunchProposalsFactory(
         @Autowired
-        private val katmanduMenuProvider: MenuProvider
+        private val katmanduMenuProvider: MenuProvider,
+        @Autowired
+        private val makaluMenuProvider: MenuProvider
 ) {
 
     private val vegeLunchDesc = "Lunch vege"
@@ -66,19 +66,7 @@ class DefaultLunchProposalsFactory(
                     roomId,
                     "Makalu",
                     "https://www.makalunepal.pl/restauracja/restauracja-makalu-nepal",
-                    listOfNotNull(
-                            MenuItem(meatLunchDesc, 20.00),
-                            MenuItem(vegeLunchDesc, 20.00),
-                            MenuItem(getMakaluExtra(), 0.00)
-                    ), ownerId)
+                    makaluMenuProvider.getCurrentMenu()
+                    , ownerId)
     )
-
-    private fun getMakaluExtra(): String = when (LocalDate.now().dayOfWeek) {
-        DayOfWeek.MONDAY -> "extra: MANGO LASSI"
-        DayOfWeek.TUESDAY -> "extra: BUTTER NAAN"
-        DayOfWeek.WEDNESDAY -> "extra: SAMOSA"
-        DayOfWeek.THURSDAY -> "extra: MANGO KUFLI"
-        DayOfWeek.FRIDAY -> "extra: GULAB JAMUN"
-        else -> "No extra today :("
-    }
 }

@@ -18,8 +18,8 @@ class KatmanduMenuProvider : MenuProvider {
         val today = LocalDate.now().dayOfWeek
         return listOfNotNull(
                 getMeatLunchForDay(today),
-                getCurrentVegeLunch(today),
-                getCurrentLambLunch(today)
+                getVegeLunchForDay(today),
+                getLambLunchForDay(today)
         )
     }
 
@@ -32,7 +32,7 @@ class KatmanduMenuProvider : MenuProvider {
         else -> generateNoLunchMenuItem()
     }
 
-    private fun getCurrentVegeLunch(day: DayOfWeek): MenuItem = when (day) {
+    private fun getVegeLunchForDay(day: DayOfWeek): MenuItem = when (day) {
         DayOfWeek.MONDAY -> generateVegeLunchMenuItem("Soczewica")
         DayOfWeek.TUESDAY -> generateVegeLunchMenuItem("Warzywa balty")
         DayOfWeek.WEDNESDAY -> generateVegeLunchMenuItem("Ciecierzyca")
@@ -41,7 +41,7 @@ class KatmanduMenuProvider : MenuProvider {
         else -> generateNoLunchMenuItem()
     }
 
-    private fun getCurrentLambLunch(day: DayOfWeek): MenuItem = when (day) {
+    private fun getLambLunchForDay(day: DayOfWeek): MenuItem = when (day) {
         DayOfWeek.MONDAY -> generateLambLunchMenuItem("Jagnięcina Curry")
         DayOfWeek.TUESDAY -> generateLambLunchMenuItem("Jagnięcina z pieczarkami")
         DayOfWeek.WEDNESDAY -> generateLambLunchMenuItem("Jagnięcina balty")
