@@ -1,4 +1,4 @@
-package byeduck.lunchroom.lunch.service.impl
+package byeduck.lunchroom.lunch.service.impl.providers
 
 import byeduck.lunchroom.domain.MenuItem
 import byeduck.lunchroom.lunch.service.MenuProvider
@@ -7,12 +7,11 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 @Service
-class MakaluMenuProvider : MenuProvider {
+class MakaluMenuProvider : MenuProvider, StandardLunchMenuProviderBase() {
 
-    private val meatLunchPrice = 20.0
-    private val vegeLunchPrice = 20.0
+    override val meatLunchPrice = 20.0
+    override val vegeLunchPrice = 20.0
     private val freePrice = 0.00
-    private val noLunchMsg = "No lunch for today :("
 
     override fun getCurrentMenu(): List<MenuItem> {
         val today = LocalDate.now().dayOfWeek
@@ -23,7 +22,7 @@ class MakaluMenuProvider : MenuProvider {
         )
     }
 
-    private fun getMeatLunchForDay(day: DayOfWeek): MenuItem = when (day) {
+    override fun getMeatLunchForDay(day: DayOfWeek): MenuItem = when (day) {
         DayOfWeek.MONDAY -> generateMeatLunchMenuItem("Chicken Tikka Masala")
         DayOfWeek.TUESDAY -> generateMeatLunchMenuItem("Chicken Methi")
         DayOfWeek.WEDNESDAY -> generateMeatLunchMenuItem("Chicken Korma")
@@ -32,7 +31,7 @@ class MakaluMenuProvider : MenuProvider {
         else -> generateNoLunchMenuItem()
     }
 
-    private fun getVegeLunchForDay(day: DayOfWeek): MenuItem = when (day) {
+    override fun getVegeLunchForDay(day: DayOfWeek): MenuItem = when (day) {
         DayOfWeek.MONDAY -> generateVegeLunchMenuItem("Dal Mix Fry")
         DayOfWeek.TUESDAY -> generateVegeLunchMenuItem("Vegetable Achari")
         DayOfWeek.WEDNESDAY -> generateVegeLunchMenuItem("Chicken Korma")
@@ -49,9 +48,4 @@ class MakaluMenuProvider : MenuProvider {
         DayOfWeek.FRIDAY -> MenuItem("extra: GULAB JAMUN", freePrice)
         else -> MenuItem("No extra today :(", freePrice)
     }
-
-
-    private fun generateMeatLunchMenuItem(description: String) = MenuItem(description, meatLunchPrice)
-    private fun generateVegeLunchMenuItem(description: String) = MenuItem(description, vegeLunchPrice)
-    private fun generateNoLunchMenuItem() = MenuItem(noLunchMsg, freePrice)
 }

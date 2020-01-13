@@ -10,7 +10,9 @@ class DefaultLunchProposalsFactory(
         @Autowired
         private val katmanduMenuProvider: MenuProvider,
         @Autowired
-        private val makaluMenuProvider: MenuProvider
+        private val makaluMenuProvider: MenuProvider,
+        @Autowired
+        private val himalayanYetiMenuProvider: MenuProvider
 ) {
 
     private val vegeLunchDesc = "Lunch vege"
@@ -29,8 +31,7 @@ class DefaultLunchProposalsFactory(
                     roomId,
                     "Katmandu",
                     "http://katmandu.com.pl/?page_id=124",
-                    katmanduMenuProvider.getCurrentMenu(),
-                    ownerId),
+                    katmanduMenuProvider.getCurrentMenu(), ownerId),
             LunchProposal(
                     roomId,
                     "Rasoi",
@@ -43,10 +44,7 @@ class DefaultLunchProposalsFactory(
                     roomId,
                     "Himalayan yeti",
                     "https://www.himalayanyeti.com.pl/restauracja/restauracja-himalayan-yeti#menu-lunch-menu",
-                    listOfNotNull(
-                            MenuItem(meatLunchDesc, 19.00),
-                            MenuItem(vegeLunchDesc, 19.00)
-                    ), ownerId),
+                    himalayanYetiMenuProvider.getCurrentMenu(), ownerId),
             LunchProposal(
                     roomId,
                     "Shahi curry (vege+meat 21zł min 5 osób)",
@@ -66,7 +64,6 @@ class DefaultLunchProposalsFactory(
                     roomId,
                     "Makalu",
                     "https://www.makalunepal.pl/restauracja/restauracja-makalu-nepal",
-                    makaluMenuProvider.getCurrentMenu()
-                    , ownerId)
+                    makaluMenuProvider.getCurrentMenu(), ownerId)
     )
 }
