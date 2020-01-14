@@ -1,6 +1,7 @@
 package byeduck.lunchroom.room.service
 
 import byeduck.lunchroom.domain.Lottery
+import byeduck.lunchroom.domain.LunchProposal
 import byeduck.lunchroom.domain.Room
 import byeduck.lunchroom.domain.RoomUser
 import byeduck.lunchroom.error.exceptions.*
@@ -130,8 +131,7 @@ class RoomServiceImpl(
         if (lunchProposals.size < 2) {
             throw OneProposalException()
         }
-        val winnerProposal = lunchProposals.maxBy { it.ratingSum + it.votesCount }
-                ?: throw RuntimeException("Unexpected error")
+        val winnerProposal = drawLunchProposal(lunchProposals)
         val winnerUserIdx = Random.nextInt(0, usersCount)
         room.open = false
         roomsRepository.save(room)
@@ -162,6 +162,14 @@ class RoomServiceImpl(
             Summary(it.timestamp, it.userNick, proposal.title)
         }
     }
+
+    private fun drawLunchProposal(lunchProposals: List<LunchProposal>) = lunchProposals
+            .sortedByDescending { it.votesCount + it.ratingSum }
+            .filter { proposal ->
+                (proposal.ratingSum + proposal.votesCount
+                        ) == (
+                        lunchProposals.first().votesCount + lunchProposals.first().ratingSum)
+            }.random()
 
     private fun addDefaults(roomId: String, ownerId: String) {
         defaultLunchProposalsFactory.getDefaults(roomId, ownerId).forEach {
