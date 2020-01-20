@@ -1,7 +1,7 @@
 package byeduck.lunchroom.user.oauth
 
 data class AccessToken(
-        val accessToken: String,
+        val token: String,
         val expirationTime: Long,
         val refreshToken: String?
 ) {

@@ -1,6 +1,9 @@
 package byeduck.lunchroom.user.oauth.google
 
+import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.error.exceptions.UnauthorizedException
+import byeduck.lunchroom.repositories.UsersRepository
+import byeduck.lunchroom.token.service.TokenService
 import byeduck.lunchroom.user.controller.SignResponse
 import byeduck.lunchroom.user.oauth.AccessToken
 import byeduck.lunchroom.user.oauth.OAuthAccessTokenResponse
@@ -30,15 +33,33 @@ class GoogleOAuthService(
         @Value("\${oauth.client.id}")
         private val clientId: String,
         @Value("\${oauth.client.secret}")
-        private val clientSecret: String
+        private val clientSecret: String,
+        @Value("\${oauth.google.userinfo.url}")
+        private val googleOAuthUserInfoUrl: String,
+        @Autowired
+        private val tokenService: TokenService,
+        @Autowired
+        private val usersRepository: UsersRepository
 ) : OAuthService {
 
     private val logger: Logger = LoggerFactory.getLogger(GoogleOAuthService::class.java)
 
-    //TODO: to be completed
-    override fun sign(authorizationCode: String): SignResponse { // Call google apis for user email
+    override fun sign(authorizationCode: String): SignResponse {
         val accessToken = retrieveAccessToken(authorizationCode)
-        throw UnauthorizedException()
+        val httpHeaders = HttpHeaders()
+        httpHeaders.accept = listOf(MediaType.APPLICATION_JSON)
+        httpHeaders.setBearerAuth(accessToken.token)
+        val response = restTemplate
+                .exchange<GoogleUserInfoResponse>(googleOAuthUserInfoUrl, HttpMethod.GET, HttpEntity<Any>(httpHeaders))
+                .body ?: throw UnauthorizedException()
+        val nick = extractUserNickFromEmail(response.email)
+        val token = tokenService.generateToken(nick)
+        return usersRepository.findByNick(nick).map {
+            SignResponse(it.id!!, it.nick, token)
+        }.orElseGet {
+            val user = usersRepository.save(User(nick, ByteArray(0), ByteArray(0)))
+            SignResponse(user.id!!, nick, token)
+        }
     }
 
     private fun retrieveAccessToken(authorizationCode: String): AccessToken {
@@ -47,8 +68,10 @@ class GoogleOAuthService(
         httpHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
         httpHeaders.accept = listOf(MediaType.APPLICATION_JSON)
         try {
-            val response = restTemplate.exchange<OAuthAccessTokenResponse>(url, HttpMethod.POST, HttpEntity<Any>(httpHeaders))
-            val accessToken = AccessToken.fromOAuthAccessTokenResponse(response.body ?: throw UnauthorizedException())
+            val response = restTemplate
+                    .exchange<OAuthAccessTokenResponse>(url, HttpMethod.POST, HttpEntity<Any>(httpHeaders))
+            val accessToken = AccessToken
+                    .fromOAuthAccessTokenResponse(response.body ?: throw UnauthorizedException())
             logger.info("Got access token from google")
             return accessToken
         } catch (e: RestClientException) {
@@ -57,7 +80,13 @@ class GoogleOAuthService(
         }
     }
 
-    private fun buildUrlForRetrieveAccessToken(authorizationCode: String): URI = UriComponentsBuilder.fromUriString(googleOAuthUrl)
+    private fun extractUserNickFromEmail(email: String): String {
+        val atIdx = email.indexOf("@")
+        return email.substring(0, atIdx)
+    }
+
+    private fun buildUrlForRetrieveAccessToken(authorizationCode: String): URI = UriComponentsBuilder
+            .fromUriString(googleOAuthUrl)
             .queryParam("grant_type", "authorization_code")
             .queryParam("code", authorizationCode)
             .queryParam("client_id", clientId)

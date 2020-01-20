@@ -39,9 +39,9 @@ class UserController(
     }
 
     @PostMapping(value = ["signIn/oauth/google"])
-    fun signInGoogleOAuth(@RequestParam("code") authorizationCode: String) {
+    fun signInGoogleOAuth(@RequestParam("code") authorizationCode: String): SignResponse {
         logger.info("Authorizing user with google oauth")
-        googleOAuthService.sign(authorizationCode)
+        return googleOAuthService.sign(authorizationCode)
     }
 
     @GetMapping(value = ["checkNick"])
