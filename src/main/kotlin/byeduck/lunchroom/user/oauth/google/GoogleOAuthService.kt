@@ -9,11 +9,19 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.MediaType
+import org.springframework.stereotype.Service
+import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.exchange
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 import java.nio.charset.StandardCharsets
 
+@Service
 class GoogleOAuthService(
         @Autowired
         private val restTemplate: RestTemplate,
@@ -27,24 +35,34 @@ class GoogleOAuthService(
 
     private val logger: Logger = LoggerFactory.getLogger(GoogleOAuthService::class.java)
 
-    override fun sign(authorizationCode: String): SignResponse {
-        TODO("not implemented") // Call google apis for user email
+    //TODO: to be completed
+    override fun sign(authorizationCode: String): SignResponse { // Call google apis for user email
+        val accessToken = retrieveAccessToken(authorizationCode)
+        throw UnauthorizedException()
     }
 
     private fun retrieveAccessToken(authorizationCode: String): AccessToken {
         val url = buildUrlForRetrieveAccessToken(authorizationCode)
-        val response = restTemplate.postForEntity(url, null, OAuthAccessTokenResponse::class.java)
-        val accessToken = AccessToken.fromOAuthAccessTokenResponse(response.body ?: throw UnauthorizedException())
-        logger.info("Got access token from google")
-        return accessToken
+        val httpHeaders = HttpHeaders()
+        httpHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
+        httpHeaders.accept = listOf(MediaType.APPLICATION_JSON)
+        try {
+            val response = restTemplate.exchange<OAuthAccessTokenResponse>(url, HttpMethod.POST, HttpEntity<Any>(httpHeaders))
+            val accessToken = AccessToken.fromOAuthAccessTokenResponse(response.body ?: throw UnauthorizedException())
+            logger.info("Got access token from google")
+            return accessToken
+        } catch (e: RestClientException) {
+            logger.error("Error from google: {}", e.message)
+            throw e
+        }
     }
 
     private fun buildUrlForRetrieveAccessToken(authorizationCode: String): URI = UriComponentsBuilder.fromUriString(googleOAuthUrl)
+            .queryParam("grant_type", "authorization_code")
             .queryParam("code", authorizationCode)
             .queryParam("client_id", clientId)
             .queryParam("client_secret", clientSecret)
-            .queryParam("redirect_uri", "")
-            .queryParam("grant_type", "authorization_code")
+            .queryParam("redirect_uri", "http://localhost:4200/signIn")
             .encode(StandardCharsets.UTF_8)
             .build(true)
             .toUri()

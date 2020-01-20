@@ -3,7 +3,7 @@ package byeduck.lunchroom.user.oauth
 data class AccessToken(
         val accessToken: String,
         val expirationTime: Long,
-        val refreshToken: String
+        val refreshToken: String?
 ) {
     companion object {
         fun fromOAuthAccessTokenResponse(response: OAuthAccessTokenResponse): AccessToken =
