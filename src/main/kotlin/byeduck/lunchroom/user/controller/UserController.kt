@@ -1,5 +1,6 @@
 package byeduck.lunchroom.user.controller
 
+import byeduck.lunchroom.user.oauth.OAuthService
 import byeduck.lunchroom.user.service.UserAuthenticationService
 import byeduck.lunchroom.user.service.UserService
 import org.slf4j.Logger
@@ -17,7 +18,9 @@ class UserController(
         @Autowired
         private val userAuthenticationService: UserAuthenticationService,
         @Autowired
-        private val userService: UserService
+        private val userService: UserService,
+        @Autowired
+        private val googleOAuthService: OAuthService
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(UserController::class.java)
@@ -33,6 +36,12 @@ class UserController(
     fun signIn(@RequestBody signRequest: SignRequest): SignResponse {
         logger.info("Sign in by user \"{}\"", signRequest.nick)
         return userAuthenticationService.signIn(signRequest.nick, signRequest.password)
+    }
+
+    @PostMapping(value = ["signIn/oauth/google"])
+    fun signInGoogleOAuth(@RequestParam("code") authorizationCode: String): SignResponse {
+        logger.info("Authorizing user with google oauth")
+        return googleOAuthService.sign(authorizationCode)
     }
 
     @GetMapping(value = ["checkNick"])
