@@ -35,6 +35,7 @@ class ExceptionResolver {
 
     @ExceptionHandler(value = [IllegalArgumentException::class, RuntimeException::class])
     fun handleBadRequest(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
+        logger.error("BAD REQUEST: {}", exception.message)
         var errorCode = ErrorCodes.GENERAL
         when (exception) {
             is ResourceAlreadyExistsException -> errorCode = ErrorCodes.RESOURCE_ALREADY_EXISTS
@@ -48,6 +49,7 @@ class ExceptionResolver {
 
     @ExceptionHandler(value = [UnauthorizedException::class])
     fun handleUnauthorizedRequest(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
+        logger.error("UNAUTHORIZED: {}", exception.message)
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorMessage(ErrorCodes.UNAUTHORIZED, exception.message))

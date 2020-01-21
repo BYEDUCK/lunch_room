@@ -99,6 +99,7 @@ class LunchWsController(
     fun handleException(
             exception: Exception, @Header("simpSessionId") sessionId: String
     ) {
+        logger.error("WS exception for session id {}: {}", sessionId, exception.message)
         msgTemplate.convertAndSendToUser(sessionId, "/gimme", exception.message!!)
     }
 
