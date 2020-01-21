@@ -59,7 +59,7 @@ class GoogleOAuthService(
         return usersRepository.findByNick(nick).map {
             SignResponse(it.id!!, it.nick, token)
         }.orElseGet {
-            val user = usersRepository.save(User(nick, ByteArray(0), ByteArray(0)))
+            val user = usersRepository.save(User(nick, ByteArray(0), ByteArray(0), false))
             SignResponse(user.id!!, nick, token)
         }
     }

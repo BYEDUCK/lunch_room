@@ -10,11 +10,12 @@ data class User(
         var nick: String,
         var password: ByteArray,
         var salt: ByteArray,
-        var rooms: MutableList<String>
+        var rooms: MutableList<String>,
+        var isNative: Boolean = true
 ) {
 
-    constructor(nick: String, password: ByteArray, salt: ByteArray)
-            : this(null, nick, password, salt, ArrayList())
+    constructor(nick: String, password: ByteArray, salt: ByteArray, isNative: Boolean = true)
+            : this(null, nick, password, salt, ArrayList(), isNative)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

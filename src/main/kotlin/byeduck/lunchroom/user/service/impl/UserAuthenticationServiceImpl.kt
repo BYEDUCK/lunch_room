@@ -1,6 +1,7 @@
 package byeduck.lunchroom.user.service.impl
 
 import byeduck.lunchroom.domain.User
+import byeduck.lunchroom.error.exceptions.NotNativeUserException
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.token.service.TokenService
 import byeduck.lunchroom.user.controller.SignResponse
@@ -35,6 +36,9 @@ class UserAuthenticationServiceImpl(
     override fun signIn(nick: String, password: String): SignResponse {
         val user = usersRepository.findByNick(nick)
         return user.map {
+            if (!it.isNative) {
+                throw NotNativeUserException()
+            }
             val hashed = hashPasswordWithSalt(password, it.salt)
             if (hashed.contentEquals(it.password)) {
                 SignResponse(it.id, it.nick, tokenService.generateToken(it.nick))
