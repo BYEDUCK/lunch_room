@@ -36,6 +36,8 @@ class GoogleOAuthService(
         private val clientSecret: String,
         @Value("\${oauth.google.userinfo.url}")
         private val googleOAuthUserInfoUrl: String,
+        @Value("\${oauth.google.redirect.uri}")
+        private val googleOAuthRedirectUri: String,
         @Autowired
         private val tokenService: TokenService,
         @Autowired
@@ -91,7 +93,7 @@ class GoogleOAuthService(
             .queryParam("code", authorizationCode)
             .queryParam("client_id", clientId)
             .queryParam("client_secret", clientSecret)
-            .queryParam("redirect_uri", "http://localhost:4200/signIn")
+            .queryParam("redirect_uri", googleOAuthRedirectUri)
             .encode(StandardCharsets.UTF_8)
             .build(true)
             .toUri()
