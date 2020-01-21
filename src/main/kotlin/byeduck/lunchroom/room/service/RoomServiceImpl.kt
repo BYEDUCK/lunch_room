@@ -123,13 +123,10 @@ class RoomServiceImpl(
             throw LotteryBeforeVotePhaseException()
         }
         val usersCount = room.users.size
-        if (usersCount < 2) {
-            throw OnePersonRoomException()
-        }
         validateRoomOwnership(room, token)
         val lunchProposals = lunchRepository.findAllByRoomId(roomId)
-        if (lunchProposals.size < 2) {
-            throw OneProposalException()
+        if (lunchProposals.isEmpty()) {
+            throw NoProposalException()
         }
         val winnerProposal = drawLunchProposal(lunchProposals)
         val winnerUserIdx = Random.nextInt(0, usersCount)
