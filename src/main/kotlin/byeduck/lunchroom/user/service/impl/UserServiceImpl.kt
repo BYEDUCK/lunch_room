@@ -10,5 +10,5 @@ class UserServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository
 ) : UserService {
-    override fun isNickAvailable(nick: String): Boolean = !usersRepository.findByNick(nick).isPresent
+    override fun isNickAvailable(nick: String): Boolean = nick.isNotBlank() && !usersRepository.findByNick(nick).isPresent
 }

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
+import javax.validation.constraints.NotBlank
 
 @RestController
 @RequestMapping(value = ["users"])
@@ -33,13 +34,13 @@ class UserController(
     }
 
     @PostMapping(value = ["signIn"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun signIn(@RequestBody signRequest: SignRequest): SignResponse {
+    fun signIn(@Valid @RequestBody signRequest: SignRequest): SignResponse {
         logger.info("Sign in by user \"{}\"", signRequest.nick)
         return userAuthenticationService.signIn(signRequest.nick, signRequest.password)
     }
 
     @PostMapping(value = ["signIn/oauth/google"])
-    fun signInGoogleOAuth(@RequestParam("code") authorizationCode: String): SignResponse {
+    fun signInGoogleOAuth(@NotBlank @RequestParam("code") authorizationCode: String): SignResponse {
         logger.info("Authorizing user with google oauth")
         return googleOAuthService.sign(authorizationCode)
     }
