@@ -10,7 +10,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
-@Profile("local", "docker", "heroku")
+@Profile("local", "docker", "prod")
 class WebSocketConfig(
         @Value("\${origins.allowed}")
         private val allowedOrigins: Array<String>

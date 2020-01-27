@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-@Profile("local", "docker", "heroku")
+@Profile("local", "docker", "prod")
 class WebConfig(
         @Value("\${origins.allowed}")
         private val allowedOrigins: Array<String>,
