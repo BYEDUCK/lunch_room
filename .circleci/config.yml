@@ -1,0 +1,42 @@
+version: 2
+jobs:
+  build_and_deploy:
+    working_directory: ~/app
+    docker:
+      - image: circleci/openjdk:8-jdk-stretch
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: ./mvnw verify -Dspring.profiles.active=test
+      - run:
+          name: Generate surefire report
+          command: ./mvnw surefire-report:report-only
+      - run:
+          name: Generate failsafe report
+          command: ./mvnw surefire-report:failsafe-report-only
+      - store_test_results:
+          paths:
+            - ~/app/target/failsafe-reports/
+            - ~/app/target/surefire-reports/
+      - store_artifacts:
+          path: ~/app/target/failsafe-reports/
+      - store_artifacts:
+          path: ~/app/target/surefire-reports/
+      - store_artifacts:
+          path: ~/app/target/site/
+      - run:
+          name: Delete old jar
+          command: 'ssh -o StrictHostKeyChecking=no -t external@vps778858.ovh.net ''echo y | rm /app/lunchroom-0.0.1-SNAPSHOT.jar'''
+      - run:
+          name: Copy new jar
+          command: 'scp -r ~/app/target/lunchroom-0.0.1-SNAPSHOT.jar external@vps778858.ovh.net:/app/'
+      - run:
+          name: Deploy new applcation
+          command: 'ssh -o StrictHostKeyChecking=no -t external@vps778858.ovh.net ''sh /run.sh &'''
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - build_and_deploy

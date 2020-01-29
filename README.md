@@ -14,3 +14,5 @@
 ## Or manually run:
 - `mvn clean package -Dspring.profiles.active=test`
 - `docker-compose up`
+
+[![CircleCI](https://circleci.com/gh/BYEDUCK/lunch_room.svg?style=svg)](https://circleci.com/gh/BYEDUCK/lunch_room)
