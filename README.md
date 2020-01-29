@@ -15,4 +15,6 @@
 - `mvn clean package -Dspring.profiles.active=test`
 - `docker-compose up`
 
+Development on dev branch.
+
 [![CircleCI](https://circleci.com/gh/BYEDUCK/lunch_room.svg?style=svg)](https://circleci.com/gh/BYEDUCK/lunch_room)
