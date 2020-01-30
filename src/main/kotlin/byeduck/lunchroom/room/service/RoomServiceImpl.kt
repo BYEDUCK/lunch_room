@@ -119,7 +119,7 @@ class RoomServiceImpl(
 
     override fun doTheLottery(userId: String, roomId: String, token: String): Lottery {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
-        if (System.currentTimeMillis() <= room.postDeadline) {
+        if (isBeforeVotePhase(room)) {
             throw LotteryBeforeVotePhaseException()
         }
         val usersCount = room.users.size
@@ -128,7 +128,30 @@ class RoomServiceImpl(
         if (lunchProposals.isEmpty()) {
             throw NoProposalException()
         }
-        val winnerProposal = drawLunchProposal(lunchProposals)
+        val winnerProposal = drawLunchProposalByVotes(lunchProposals)
+        val winnerUserIdx = Random.nextInt(0, usersCount)
+        room.open = false
+        roomsRepository.save(room)
+        return lotteryRepository.save(
+                Lottery(
+                        room.users[winnerUserIdx].user.id!!, room.users[winnerUserIdx].user.nick,
+                        roomId, winnerProposal.id!!
+                )
+        )
+    }
+
+    override fun doTheLuckyShot(userId: String, roomId: String, token: String): Lottery {
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        if (isBeforeVotePhase(room)) {
+            throw LotteryBeforeVotePhaseException()
+        }
+        validateRoomOwnership(room, token)
+        val lunchProposals = lunchRepository.findAllByRoomId(roomId)
+        if (lunchProposals.isEmpty()) {
+            throw NoProposalException()
+        }
+        val usersCount = room.users.size
+        val winnerProposal = lunchProposals.random()
         val winnerUserIdx = Random.nextInt(0, usersCount)
         room.open = false
         roomsRepository.save(room)
@@ -160,7 +183,9 @@ class RoomServiceImpl(
         }
     }
 
-    private fun drawLunchProposal(lunchProposals: List<LunchProposal>) = lunchProposals
+    private fun isBeforeVotePhase(room: Room) = System.currentTimeMillis() <= room.postDeadline
+
+    private fun drawLunchProposalByVotes(lunchProposals: List<LunchProposal>) = lunchProposals
             .sortedByDescending { it.votesCount + it.ratingSum }
             .filter { proposal ->
                 (proposal.ratingSum + proposal.votesCount
