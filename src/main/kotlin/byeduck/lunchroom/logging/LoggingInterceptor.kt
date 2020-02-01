@@ -2,13 +2,13 @@ package byeduck.lunchroom.logging
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class LoggingInterceptor : HandlerInterceptorAdapter() {
+class LoggingInterceptor : HandlerInterceptor {
 
     private val logger: Logger = LoggerFactory.getLogger(LoggingInterceptor::class.java)
     private val startTimeAttributeName = "startTime"
@@ -25,7 +25,8 @@ class LoggingInterceptor : HandlerInterceptorAdapter() {
     }
 
     private fun logRequest(request: HttpServletRequest) = logger.debug(
-            "\n########REQUEST########\nURL : {}\nPARAMS:\n{}\nHEADERS:\n{}\nCOOKIES:\n{}\n",
+            "\n########REQUEST########\n{}: {}\nPARAMS:\n{}\nHEADERS:\n{}\nCOOKIES:\n{}\n",
+            request.method,
             request.requestURI,
             parseParamMapToString(request.parameterMap ?: emptyMap()),
             parseHeadersFromRequestToString(request),
@@ -58,7 +59,7 @@ class LoggingInterceptor : HandlerInterceptorAdapter() {
     private fun parseHeadersFromRequestToString(request: HttpServletRequest) = StringBuilder()
             .append("{\n")
             .append(request.headerNames.toList().joinToString("\n") {
-                "\t\"${it}\" : \"${request.getHeader(it)}\""
+                "\t\"$it\" : \"${request.getHeader(it)}\""
             })
             .append("\n}")
             .toString()
@@ -66,7 +67,7 @@ class LoggingInterceptor : HandlerInterceptorAdapter() {
     private fun parseHeadersFromResponseToString(response: HttpServletResponse) = StringBuilder()
             .append("{\n")
             .append(response.headerNames.toList().joinToString("\n") {
-                "\t\"${it}\" : \"${response.getHeader(it)}\""
+                "\t\"$it\" : \"${response.getHeader(it)}\""
             })
             .append("\n}")
             .toString()

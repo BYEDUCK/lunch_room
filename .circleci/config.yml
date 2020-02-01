@@ -30,10 +30,10 @@ jobs:
           command: 'ssh -o StrictHostKeyChecking=no -t external@vps778858.ovh.net ''echo y | rm /app/lunchroom-0.0.1-SNAPSHOT.jar'''
       - run:
           name: Copy new jar
-          command: 'scp -r ~/app/target/lunchroom-0.0.1-SNAPSHOT.jar external@vps778858.ovh.net:/app/'
+          command: 'scp ~/app/target/lunchroom-0.0.1-SNAPSHOT.jar external@vps778858.ovh.net:/app/'
       - run:
           name: Deploy new applcation
-          command: 'ssh -o StrictHostKeyChecking=no -t external@vps778858.ovh.net ''sh /usr/local/bin/deploy.sh &'''
+          command: 'ssh -o StrictHostKeyChecking=no -t external@vps778858.ovh.net ''sh /usr/local/bin/deploy.sh'''
 
 workflows:
   version: 2
