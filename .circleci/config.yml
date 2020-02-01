@@ -32,14 +32,8 @@ jobs:
           name: Copy new jar
           command: 'scp ~/app/target/lunchroom-0.0.1-SNAPSHOT.jar external@vps778858.ovh.net:/app/'
       - run:
-          name: Connect to remote server
-          command: 'ssh -o StrictHostKeyChecking=no external@vps778858.ovh.net'
-      - run:
-          name: Deploy application
-          command: sh /usr/local/bin/deploy.sh &
-      - run:
-          name: Close connection
-          command: exit
+          name: Deploy new applcation
+          command: 'ssh -o StrictHostKeyChecking=no -t external@vps778858.ovh.net ''sh /usr/local/bin/deploy.sh'''
 
 workflows:
   version: 2
