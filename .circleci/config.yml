@@ -33,7 +33,7 @@ jobs:
           command: 'scp ~/app/target/lunchroom-0.0.1-SNAPSHOT.jar external@vps778858.ovh.net:/app/'
       - run:
           name: Deploy new applcation
-          command: 'ssh -o StrictHostKeyChecking=no -t external@vps778858.ovh.net ''sh /usr/local/bin/deploy.sh'''
+          command: 'ssh -o StrictHostKeyChecking=no external@vps778858.ovh.net ''screen -dmS tomcat_lunchroom sh /usr/local/bin/deploy.sh'''
 
 workflows:
   version: 2
