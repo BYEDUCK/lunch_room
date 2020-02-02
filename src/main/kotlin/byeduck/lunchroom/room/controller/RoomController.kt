@@ -105,6 +105,20 @@ class RoomController(
         )
     }
 
+    @PostMapping(value = ["lucky_shot"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
+    fun doTheLuckyShot(
+            @RequestHeader requestHeaders: HttpHeaders,
+            @RequestHeader(TOKEN_HEADER_NAME) token: String,
+            @RequestBody @Valid request: LotteryRequest
+    ) {
+        val lottery = roomService.doTheLuckyShot(request.userId, request.roomId, token)
+        logger.info("Lucky shot triggered by user {} in room {}", request.userId, request.roomId)
+        msgTemplate.convertAndSend(
+                "/room/lottery/${request.roomId}", LotteryResponse(lottery.userNick, lottery.proposalId)
+        )
+    }
+
     @PostMapping(value = ["summary"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ValidateToken
     fun getSummaries(
