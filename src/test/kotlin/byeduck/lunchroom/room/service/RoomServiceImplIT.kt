@@ -37,7 +37,7 @@ internal class RoomServiceImplIT {
     @BeforeEach
     internal fun setUp() {
         val current = System.currentTimeMillis()
-        deadlines = Deadlines(current + 10000, current + 20000, current + 30000)
+        deadlines = Deadlines(current + 10000, current + 20000)
     }
 
     @Test

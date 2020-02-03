@@ -26,7 +26,7 @@ internal class RoomRepositoryIT {
     @Test
     @DisplayName("Simple scenario: insert (check if id exists) -> remove (check if db is empty)")
     internal fun testInsertFindRemoveScenario() {
-        val room = Room(testName, testName, 1L, 1L, 1L)
+        val room = Room(testName, testName, 1L, 1L)
         val savedRoom = roomsRepository.save(room)
         val id = savedRoom.id ?: ""
         assertTrue(id.isNotEmpty())

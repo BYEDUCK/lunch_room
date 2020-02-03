@@ -11,6 +11,7 @@ import javax.validation.Valid
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotEmpty
 
 interface LunchService {
     fun addLunchProposal(
@@ -51,4 +52,9 @@ interface LunchService {
     fun getProposalCount(
             @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String
     ): Int
+
+    fun notifyRoomUsersAboutLunchProposalsChange(
+            @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String,
+            @NotEmpty updated: List<LunchProposal>
+    )
 }

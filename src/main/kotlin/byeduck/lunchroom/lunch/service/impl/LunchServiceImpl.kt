@@ -2,6 +2,8 @@ package byeduck.lunchroom.lunch.service.impl
 
 import byeduck.lunchroom.domain.*
 import byeduck.lunchroom.error.exceptions.*
+import byeduck.lunchroom.lunch.controller.response.LunchProposalDTO
+import byeduck.lunchroom.lunch.controller.response.LunchResponse
 import byeduck.lunchroom.lunch.exceptions.InvalidProposalException
 import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
 import byeduck.lunchroom.lunch.service.LunchService
@@ -11,6 +13,7 @@ import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 
@@ -22,14 +25,16 @@ class LunchServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository,
         @Autowired
-        private val roomsRepository: RoomsRepository
+        private val roomsRepository: RoomsRepository,
+        @Autowired
+        private val msgTemplate: SimpMessagingTemplate
 ) : LunchService {
 
     override fun addLunchProposal(
             userId: String, roomId: String, title: String, menuUrl: String, menuItems: List<MenuItem>
     ): LunchProposal {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
-        if (!isPostPhase(room)) {
+        if (!isInitialPhase(room)) {
             throw InvalidPhaseException()
         }
         val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
@@ -108,6 +113,13 @@ class LunchServiceImpl(
         return lunchRepository.countByRoomId(roomId)
     }
 
+    override fun notifyRoomUsersAboutLunchProposalsChange(roomId: String, updated: List<LunchProposal>) {
+        val total = getProposalCount(roomId)
+        msgTemplate.convertAndSend("/room/proposals/$roomId", LunchResponse(total, updated.map {
+            LunchProposalDTO.fromLunchProposal(it)
+        }))
+    }
+
     private fun validateProposalInRoom(proposal: LunchProposal, room: Room) {
         if (proposal.roomId != room.id) {
             throw InvalidProposalException(proposal.id!!)
@@ -115,7 +127,7 @@ class LunchServiceImpl(
     }
 
     private fun isUserEligibleToModifyProposal(userId: String, proposal: LunchProposal, room: Room): Boolean {
-        return userId == room.owner || (userId == proposal.proposalOwnerId && isPostPhase(room))
+        return userId == room.owner || (userId == proposal.proposalOwnerId && isInitialPhase(room))
     }
 
     private fun validateUserInRoom(user: User, room: Room) {
@@ -132,12 +144,12 @@ class LunchServiceImpl(
 
     private fun isVotePhase(room: Room): Boolean {
         val now = System.currentTimeMillis()
-        return room.postDeadline < now && room.voteDeadline > now
+        return room.initialDeadline < now && room.voteDeadline > now
     }
 
-    private fun isPostPhase(room: Room): Boolean {
+    private fun isInitialPhase(room: Room): Boolean {
         val now = System.currentTimeMillis()
-        return room.signDeadline < now && room.postDeadline > now
+        return room.initialDeadline > now
     }
 
 }

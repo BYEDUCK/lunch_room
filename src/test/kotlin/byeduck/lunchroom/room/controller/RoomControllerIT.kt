@@ -24,7 +24,7 @@ internal class RoomControllerIT {
             val httpHeaders = HttpHeaders()
             httpHeaders.contentType = MediaType.APPLICATION_JSON
             roomController.addRoom(
-                    CreateRoomRequest("test", "test", Deadlines(1L, 2L, 3L)),
+                    CreateRoomRequest("test", "test", Deadlines(1L, 2L)),
                     httpHeaders
             )
         }

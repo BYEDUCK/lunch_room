@@ -1,5 +1,6 @@
 package byeduck.lunchroom.lunch.controller
 
+import byeduck.lunchroom.domain.LunchProposal
 import byeduck.lunchroom.error.exceptions.RequiredParameterEmptyException
 import byeduck.lunchroom.lunch.controller.request.LunchRequest
 import byeduck.lunchroom.lunch.controller.request.LunchRequestType
@@ -32,31 +33,33 @@ class LunchWsController(
     // TODO: return different responses depended on request type
     @MessageMapping("/propose")
     fun handleLunchRequests(request: LunchRequest) {
-        val processed: MutableList<LunchProposalDTO> = ArrayList()
+        val processed: MutableList<LunchProposal> = ArrayList()
         when (request.lunchRequestType) {
             LunchRequestType.ADD -> {
                 logger.info("Adding new lunch proposal by user {} in room {}", request.userId, request.roomId)
-                processed.add(LunchProposalDTO.fromLunchProposal(
+                processed.add(
                         lunchService.addLunchProposal(
                                 request.userId,
                                 request.roomId,
                                 request.title ?: throw RequiredParameterEmptyException("proposal title"),
                                 request.menuUrl ?: throw RequiredParameterEmptyException("proposal menuUrl"),
                                 request.menuItems
-                        )))
+                        )
+                )
             }
             LunchRequestType.VOTE -> {
                 logger.info(
                         "Voting for lunch proposal {} by user {} with {} rating",
                         request.proposalId, request.userId, request.rating
                 )
-                processed.add(LunchProposalDTO.fromLunchProposal(
+                processed.add(
                         lunchService.voteForProposal(
                                 request.userId,
                                 request.roomId,
                                 request.proposalId ?: throw RequiredParameterEmptyException(proposalIdName),
                                 request.rating ?: throw RequiredParameterEmptyException("rating")
-                        )))
+                        )
+                )
                 roomService.notifyRoomUsersAboutUserChange(request.roomId)
             }
             LunchRequestType.FIND -> {
@@ -64,7 +67,7 @@ class LunchWsController(
                 processed.addAll(lunchService.findAllByRoomId(
                         request.userId,
                         request.roomId
-                ).map { LunchProposalDTO.fromLunchProposal(it) })
+                ))
                 roomService.notifyRoomUsersAboutUserChange(request.roomId)
             }
             LunchRequestType.DELETE -> {
@@ -77,22 +80,23 @@ class LunchWsController(
                 processed.addAll(lunchService.findAllByRoomId(
                         request.userId,
                         request.roomId
-                ).map { LunchProposalDTO.fromLunchProposal(it) })
+                ))
             }
             LunchRequestType.EDIT -> {
                 logger.info("Editing proposal {} by user {} in room {}", request.proposalId, request.userId, request.roomId)
-                processed.add(LunchProposalDTO.fromLunchProposal(lunchService.editProposal(
-                        request.userId,
-                        request.roomId,
-                        request.proposalId ?: throw RequiredParameterEmptyException(proposalIdName),
-                        request.title ?: throw RequiredParameterEmptyException("proposal title"),
-                        request.menuUrl ?: throw RequiredParameterEmptyException("proposal menu url"),
-                        request.menuItems
-                )))
+                processed.add(
+                        lunchService.editProposal(
+                                request.userId,
+                                request.roomId,
+                                request.proposalId ?: throw RequiredParameterEmptyException(proposalIdName),
+                                request.title ?: throw RequiredParameterEmptyException("proposal title"),
+                                request.menuUrl ?: throw RequiredParameterEmptyException("proposal menu url"),
+                                request.menuItems
+                        )
+                )
             }
         }
-        val total = lunchService.getProposalCount(request.roomId)
-        msgTemplate.convertAndSend("/room/proposals/${request.roomId}", LunchResponse(total, processed))
+        lunchService.notifyRoomUsersAboutLunchProposalsChange(request.roomId, processed)
     }
 
     @MessageExceptionHandler
