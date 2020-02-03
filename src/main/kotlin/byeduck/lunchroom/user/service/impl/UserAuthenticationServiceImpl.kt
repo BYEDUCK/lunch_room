@@ -4,7 +4,7 @@ import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.error.exceptions.NotNativeUserException
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.token.service.TokenService
-import byeduck.lunchroom.user.controller.SignResponse
+import byeduck.lunchroom.user.controller.AuthenticationConfirm
 import byeduck.lunchroom.user.exceptions.InvalidCredentialsException
 import byeduck.lunchroom.user.exceptions.UserAlreadyExistsException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
@@ -33,7 +33,7 @@ class UserAuthenticationServiceImpl(
         private val saltSize: Int
 ) : UserAuthenticationService {
 
-    override fun signIn(nick: String, password: String): SignResponse {
+    override fun signIn(nick: String, password: String): AuthenticationConfirm {
         val user = usersRepository.findByNick(nick)
         return user.map {
             if (!it.isNative) {
@@ -41,7 +41,7 @@ class UserAuthenticationServiceImpl(
             }
             val hashed = hashPasswordWithSalt(password, it.salt)
             if (hashed.contentEquals(it.password)) {
-                SignResponse(it.id, it.nick, tokenService.generateToken(it.nick))
+                AuthenticationConfirm(it.id!!, it.nick, tokenService.generateToken(it.nick))
             } else {
                 throw InvalidCredentialsException(it.nick)
             }

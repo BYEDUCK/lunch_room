@@ -4,7 +4,7 @@ import byeduck.lunchroom.domain.User
 import byeduck.lunchroom.error.exceptions.UnauthorizedException
 import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.token.service.TokenService
-import byeduck.lunchroom.user.controller.SignResponse
+import byeduck.lunchroom.user.controller.AuthenticationConfirm
 import byeduck.lunchroom.user.oauth.AccessToken
 import byeduck.lunchroom.user.oauth.OAuthAccessTokenResponse
 import byeduck.lunchroom.user.oauth.OAuthService
@@ -46,7 +46,7 @@ class GoogleOAuthService(
 
     private val logger: Logger = LoggerFactory.getLogger(GoogleOAuthService::class.java)
 
-    override fun sign(authorizationCode: String): SignResponse {
+    override fun sign(authorizationCode: String): AuthenticationConfirm {
         val accessToken = retrieveAccessToken(authorizationCode)
         val httpHeaders = HttpHeaders()
         httpHeaders.accept = listOf(MediaType.APPLICATION_JSON)
@@ -57,10 +57,10 @@ class GoogleOAuthService(
         val nick = extractUserNickFromEmail(response.email)
         val token = tokenService.generateToken(nick)
         return usersRepository.findByNick(nick).map {
-            SignResponse(it.id!!, it.nick, token)
+            AuthenticationConfirm(it.id!!, it.nick, token)
         }.orElseGet {
             val user = usersRepository.save(User(nick, ByteArray(0), ByteArray(0), false))
-            SignResponse(user.id!!, nick, token)
+            AuthenticationConfirm(user.id!!, nick, token)
         }
     }
 

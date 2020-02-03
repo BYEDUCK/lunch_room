@@ -19,6 +19,7 @@ class WebConfig(
                 .addMapping("/**")
                 .allowedOrigins(*allowedOrigins)
                 .allowedMethods(*allowedMethods)
+                .allowCredentials(true)
         super.addCorsMappings(registry)
     }
 }

@@ -8,8 +8,6 @@ import javax.validation.constraints.NotBlank
 data class CreateRoomRequest(
         @field:NotBlank(message = "Room name $CANNOT_BE_EMPTY_MSG")
         val name: String,
-        @field:NotBlank(message = "Owner id $CANNOT_BE_EMPTY_MSG")
-        val ownerId: String,
         @DeadlinesConstraint
         val deadlines: Deadlines
 )

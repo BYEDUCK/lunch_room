@@ -1,5 +1,8 @@
 package byeduck.lunchroom.user.controller
 
+import byeduck.lunchroom.NICK_COOKIE_NAME
+import byeduck.lunchroom.TOKEN_COOKIE_NAME
+import byeduck.lunchroom.USER_ID_COOKIE_NAME
 import byeduck.lunchroom.user.oauth.OAuthService
 import byeduck.lunchroom.user.service.UserAuthenticationService
 import byeduck.lunchroom.user.service.UserService
@@ -10,6 +13,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.Cookie
+import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 
@@ -34,15 +39,25 @@ class UserController(
     }
 
     @PostMapping(value = ["signIn"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun signIn(@Valid @RequestBody signRequest: SignRequest): SignResponse {
+    fun signIn(
+            @Valid @RequestBody signRequest: SignRequest,
+            response: HttpServletResponse
+    ): ResponseEntity<Any> {
         logger.info("Sign in by user \"{}\"", signRequest.nick)
-        return userAuthenticationService.signIn(signRequest.nick, signRequest.password)
+        val confirmation = userAuthenticationService.signIn(signRequest.nick, signRequest.password)
+        setAuthorizationCookies(response, confirmation.userNick, confirmation.token, confirmation.userId)
+        return ResponseEntity(HttpStatus.OK)
     }
 
     @PostMapping(value = ["signIn/oauth/google"])
-    fun signInGoogleOAuth(@NotBlank @RequestParam("code") authorizationCode: String): SignResponse {
+    fun signInGoogleOAuth(
+            @NotBlank @RequestParam("code") authorizationCode: String,
+            response: HttpServletResponse
+    ): ResponseEntity<Any> {
         logger.info("Authorizing user with google oauth")
-        return googleOAuthService.sign(authorizationCode)
+        val confirmation = googleOAuthService.sign(authorizationCode)
+        setAuthorizationCookies(response, confirmation.userNick, confirmation.token, confirmation.userId)
+        return ResponseEntity(HttpStatus.OK)
     }
 
     @GetMapping(value = ["checkNick"])
@@ -51,6 +66,18 @@ class UserController(
             ResponseEntity.status(HttpStatus.OK).build()
         else
             ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
+    }
+
+    private fun setAuthorizationCookies(response: HttpServletResponse, userNick: String, token: String, userId: String) {
+        val nickCookie = Cookie(NICK_COOKIE_NAME, userNick)
+        val tokenCookie = Cookie(TOKEN_COOKIE_NAME, token)
+        val userIdCookie = Cookie(USER_ID_COOKIE_NAME, userId)
+        nickCookie.path = "/"
+        tokenCookie.path = "/"
+        userIdCookie.path = "/"
+        response.addCookie(nickCookie)
+        response.addCookie(tokenCookie)
+        response.addCookie(userIdCookie)
     }
 
 }

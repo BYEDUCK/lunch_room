@@ -1,15 +1,17 @@
 package byeduck.lunchroom.token
 
-import byeduck.lunchroom.NICK_HEADER_NAME
-import byeduck.lunchroom.TOKEN_HEADER_NAME
+import byeduck.lunchroom.NICK_COOKIE_NAME
+import byeduck.lunchroom.TOKEN_COOKIE_NAME
 import byeduck.lunchroom.error.exceptions.InvalidTokenException
+import byeduck.lunchroom.error.exceptions.UnauthorizedException
 import byeduck.lunchroom.token.service.TokenService
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.springframework.util.MultiValueMap
+import javax.servlet.http.Cookie
+import javax.servlet.http.HttpServletRequest
 
 @Aspect
 @Component
@@ -22,8 +24,8 @@ class TokenValidator(
     fun validateToken(joinPoint: JoinPoint) {
         var checked = false
         for (arg in joinPoint.args) {
-            if (arg is MultiValueMap<*, *>) {
-                validateAuthorizationHeaders(arg)
+            if (arg is HttpServletRequest) {
+                validateAuthorizationHeaders(arg.cookies)
                 checked = true
                 break
             }
@@ -33,10 +35,19 @@ class TokenValidator(
         }
     }
 
-    private fun validateAuthorizationHeaders(headers: MultiValueMap<*, *>) {
-        val userNick = headers[NICK_HEADER_NAME] ?: throw InvalidTokenException()
-        val token = headers[TOKEN_HEADER_NAME] ?: throw InvalidTokenException()
-        tokenService.validateToken(token.first() as String, userNick.first() as String)
+    private fun validateAuthorizationHeaders(cookies: Array<Cookie>) {
+        var userNick: String? = null
+        var token: String? = null
+        for (cookie in cookies) {
+            when (cookie.name) {
+                NICK_COOKIE_NAME -> userNick = cookie.value
+                TOKEN_COOKIE_NAME -> token = cookie.value
+            }
+        }
+        tokenService.validateToken(
+                token ?: throw UnauthorizedException(),
+                userNick ?: throw UnauthorizedException()
+        )
     }
 
 }
