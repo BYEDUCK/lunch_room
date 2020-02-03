@@ -70,6 +70,16 @@ class RoomController(
         return RoomResponse.fromRoom(room)
     }
 
+    @PostMapping(value = ["leave"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
+    fun leaveRoom(
+            @Valid @RequestBody request: LeaveRoomRequest,
+            @RequestHeader requestHeaders: HttpHeaders
+    ) {
+        logger.info("User {} is leaving room {}", request.userId, request.roomId)
+        roomService.leaveRoom(request.roomId, request.userId)
+    }
+
     @DeleteMapping(value = ["/{id}"])
     @ValidateToken
     fun deleteRoom(

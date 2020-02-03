@@ -2,6 +2,8 @@ package byeduck.lunchroom.lunch.service.impl
 
 import byeduck.lunchroom.domain.*
 import byeduck.lunchroom.error.exceptions.*
+import byeduck.lunchroom.lunch.controller.response.LunchProposalDTO
+import byeduck.lunchroom.lunch.controller.response.LunchResponse
 import byeduck.lunchroom.lunch.exceptions.InvalidProposalException
 import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
 import byeduck.lunchroom.lunch.service.LunchService
@@ -11,6 +13,7 @@ import byeduck.lunchroom.repositories.UsersRepository
 import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 
@@ -22,7 +25,9 @@ class LunchServiceImpl(
         @Autowired
         private val usersRepository: UsersRepository,
         @Autowired
-        private val roomsRepository: RoomsRepository
+        private val roomsRepository: RoomsRepository,
+        @Autowired
+        private val msgTemplate: SimpMessagingTemplate
 ) : LunchService {
 
     override fun addLunchProposal(
@@ -106,6 +111,13 @@ class LunchServiceImpl(
 
     override fun getProposalCount(roomId: String): Int {
         return lunchRepository.countByRoomId(roomId)
+    }
+
+    override fun notifyRoomUsersAboutLunchProposalsChange(roomId: String, updated: List<LunchProposal>) {
+        val total = getProposalCount(roomId)
+        msgTemplate.convertAndSend("/room/proposals/$roomId", LunchResponse(total, updated.map {
+            LunchProposalDTO.fromLunchProposal(it)
+        }))
     }
 
     private fun validateProposalInRoom(proposal: LunchProposal, room: Room) {

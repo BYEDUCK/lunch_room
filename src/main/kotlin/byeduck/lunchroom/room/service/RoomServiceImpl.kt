@@ -7,6 +7,7 @@ import byeduck.lunchroom.domain.RoomUser
 import byeduck.lunchroom.error.exceptions.*
 import byeduck.lunchroom.lunch.exceptions.LunchProposalNotFoundException
 import byeduck.lunchroom.lunch.service.DefaultLunchProposalsFactory
+import byeduck.lunchroom.lunch.service.LunchService
 import byeduck.lunchroom.repositories.LotteryRepository
 import byeduck.lunchroom.repositories.LunchRepository
 import byeduck.lunchroom.repositories.RoomsRepository
@@ -16,6 +17,8 @@ import byeduck.lunchroom.room.exceptions.RoomAlreadyExistsException
 import byeduck.lunchroom.room.exceptions.RoomNotFoundException
 import byeduck.lunchroom.token.service.TokenService
 import byeduck.lunchroom.user.exceptions.UserNotFoundException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.simp.SimpMessagingTemplate
@@ -35,12 +38,16 @@ class RoomServiceImpl(
         @Autowired
         private val tokenService: TokenService,
         @Autowired
+        private val lunchService: LunchService,
+        @Autowired
         private val defaultLunchProposalsFactory: DefaultLunchProposalsFactory,
         @Autowired
         private val msgTemplate: SimpMessagingTemplate,
         @Value("\${user.start.points}")
         private val roomUserStartingPoints: Int
 ) : RoomService {
+
+    private val logger: Logger = LoggerFactory.getLogger(RoomServiceImpl::class.java)
 
     override fun addRoom(name: String, ownerId: String, deadlines: Deadlines, defaults: Boolean): Room {
         val found = roomsRepository.findByName(name)
@@ -74,18 +81,26 @@ class RoomServiceImpl(
 
     override fun joinRoomById(roomId: String, userId: String): Room {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
-        if (isVotePhase(room)) {
-            throw InvalidPhaseException()
-        }
         if (!room.open) {
             throw RoomClosedException()
         }
         return joinRoom(room, userId)
     }
 
+    override fun leaveRoom(roomId: String, userId: String) {
+        val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        val user = usersRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val roomUserIdx = room.users.indexOf(RoomUser(user, -1))
+        if (roomUserIdx >= 0) {
+            deleteUsersVotes(room.users[roomUserIdx], roomId)
+            room.users.removeAt(roomUserIdx)
+            roomsRepository.save(room)
+            notifyRoomUsersAboutUserChange(roomId)
+        }
+    }
+
     override fun deleteRoom(id: String, token: String) {
-        val room = roomsRepository.findById(id)
-                .orElseThrow { throw RoomNotFoundException(id) }
+        val room = roomsRepository.findById(id).orElseThrow { throw RoomNotFoundException(id) }
         validateRoomOwnership(room, token)
         lunchRepository.findAllByRoomId(room.id!!).forEach {
             lunchRepository.delete(it)
@@ -167,6 +182,7 @@ class RoomServiceImpl(
 
     override fun notifyRoomUsersAboutUserChange(roomId: String) {
         val room = roomsRepository.findById(roomId).orElseThrow { UserNotFoundException(roomId) }
+        logger.debug("Notifying users about user change in room {}", roomId)
         msgTemplate.convertAndSend("/room/users/$roomId", room.users.map { SimpleUserResponse.fromUser(it) })
     }
 
@@ -185,7 +201,14 @@ class RoomServiceImpl(
         }
     }
 
-    private fun isVotePhase(room: Room) = !isBeforeVotePhase(room)
+    private fun deleteUsersVotes(roomUser: RoomUser, roomId: String) = roomUser.votes.forEach { vote ->
+        lunchRepository.findById(vote.proposalId).ifPresent {
+            it.ratingSum -= vote.rating
+            it.votesCount--
+            val saved = lunchRepository.save(it)
+            lunchService.notifyRoomUsersAboutLunchProposalsChange(roomId, listOf(saved))
+        }
+    }
 
     private fun isBeforeVotePhase(room: Room) = System.currentTimeMillis() <= room.initialDeadline
 
@@ -206,13 +229,17 @@ class RoomServiceImpl(
     private fun joinRoom(room: Room, userId: String): Room {
         val user = usersRepository.findById(userId)
         return user.map {
-            if (user.get().rooms.contains(room.id)) {
-                return@map room
-            } else {
-                it.rooms.add(room.id!!)
-                usersRepository.save(it)
-                room.users.add(RoomUser(it, roomUserStartingPoints))
-                return@map roomsRepository.save(room)
+            when {
+                room.users.contains(RoomUser(it, -1)) -> room
+                isBeforeVotePhase(room) -> {
+                    it.rooms.add(room.id!!)
+                    usersRepository.save(it)
+                    room.users.add(RoomUser(it, roomUserStartingPoints))
+                    val updatedRoom = roomsRepository.save(room)
+                    notifyRoomUsersAboutUserChange(room.id!!)
+                    return@map updatedRoom
+                }
+                else -> throw InvalidPhaseException()
             }
         }.orElseThrow { UserNotFoundException(userId) }
     }
