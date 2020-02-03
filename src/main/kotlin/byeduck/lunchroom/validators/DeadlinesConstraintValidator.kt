@@ -12,8 +12,8 @@ class DeadlinesConstraintValidator : ConstraintValidator<DeadlinesConstraint, De
 
     private fun areDeadlinesValid(deadlines: Deadlines?): Boolean {
         return deadlines != null
-                && (deadlines.signDeadline > System.currentTimeMillis())
-                && ((deadlines.signDeadline < deadlines.postDeadline) && (deadlines.postDeadline < deadlines.voteDeadline))
+                && (deadlines.initialDeadline > System.currentTimeMillis())
+                && (deadlines.initialDeadline < deadlines.voteDeadline)
     }
 
 }

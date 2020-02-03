@@ -49,7 +49,7 @@ class RoomServiceImpl(
         }
         val owner = usersRepository.findById(ownerId)
         return owner.map {
-            val room = Room(name, ownerId, deadlines.signDeadline, deadlines.postDeadline, deadlines.voteDeadline)
+            val room = Room(name, ownerId, deadlines.initialDeadline, deadlines.voteDeadline)
             val insertedRoom = roomsRepository.insert(room)
             it.rooms.add(insertedRoom.id!!)
             insertedRoom.users.add(RoomUser(it, roomUserStartingPoints))
@@ -74,6 +74,9 @@ class RoomServiceImpl(
 
     override fun joinRoomById(roomId: String, userId: String): Room {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
+        if (isVotePhase(room)) {
+            throw InvalidPhaseException()
+        }
         if (!room.open) {
             throw RoomClosedException()
         }
@@ -101,8 +104,7 @@ class RoomServiceImpl(
         if (room.open) {
             throw UpdatingOpenRoomException()
         }
-        room.signDeadline = newDeadlines.signDeadline
-        room.postDeadline = newDeadlines.postDeadline
+        room.initialDeadline = newDeadlines.initialDeadline
         room.voteDeadline = newDeadlines.voteDeadline
         room.users.forEach {
             it.points = roomUserStartingPoints
@@ -183,7 +185,9 @@ class RoomServiceImpl(
         }
     }
 
-    private fun isBeforeVotePhase(room: Room) = System.currentTimeMillis() <= room.postDeadline
+    private fun isVotePhase(room: Room) = !isBeforeVotePhase(room)
+
+    private fun isBeforeVotePhase(room: Room) = System.currentTimeMillis() <= room.initialDeadline
 
     private fun drawLunchProposalByVotes(lunchProposals: List<LunchProposal>) = lunchProposals
             .sortedByDescending { it.votesCount + it.ratingSum }
