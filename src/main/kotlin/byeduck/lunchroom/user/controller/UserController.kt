@@ -10,6 +10,7 @@ import byeduck.lunchroom.user.service.UserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -27,7 +28,9 @@ class UserController(
         @Autowired
         private val userService: UserService,
         @Autowired
-        private val googleOAuthService: OAuthService
+        private val googleOAuthService: OAuthService,
+        @Value("\${front.domain}")
+        private val frontDomain: String
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(UserController::class.java)
@@ -78,6 +81,9 @@ class UserController(
         nickCookie.path = "/"
         tokenCookie.path = "/"
         userIdCookie.path = "/"
+        nickCookie.domain = frontDomain
+        tokenCookie.domain = frontDomain
+        userIdCookie.domain = frontDomain
         tokenCookie.maxAge = ((token.expiresOn - System.currentTimeMillis()) / 1000.0).toInt()
         response.addCookie(nickCookie)
         response.addCookie(tokenCookie)
