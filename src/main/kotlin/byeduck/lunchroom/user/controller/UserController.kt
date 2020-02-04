@@ -78,7 +78,7 @@ class UserController(
         nickCookie.path = "/"
         tokenCookie.path = "/"
         userIdCookie.path = "/"
-        tokenCookie.maxAge = ((token.expiresOn - System.currentTimeMillis()) / 1000).toInt()
+        tokenCookie.maxAge = ((token.expiresOn - System.currentTimeMillis()) / 1000.0).toInt()
         response.addCookie(nickCookie)
         response.addCookie(tokenCookie)
         response.addCookie(userIdCookie)

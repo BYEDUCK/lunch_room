@@ -5,7 +5,7 @@
 
 	<appender name="RollingFile"
 			  class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>${LOGS}/spring-boot-logger.log</file>
+		<file>${LOGS}/lunchroom.log</file>
 		<encoder
 				class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d{ISO8601} %magenta([%thread]) %highlight(%-5level) %yellow(%logger{36}.%M) - %msg%n%throwable</Pattern>
