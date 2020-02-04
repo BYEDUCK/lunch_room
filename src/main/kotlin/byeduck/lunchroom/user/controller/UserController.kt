@@ -3,6 +3,7 @@ package byeduck.lunchroom.user.controller
 import byeduck.lunchroom.NICK_COOKIE_NAME
 import byeduck.lunchroom.TOKEN_COOKIE_NAME
 import byeduck.lunchroom.USER_ID_COOKIE_NAME
+import byeduck.lunchroom.token.AuthorizationToken
 import byeduck.lunchroom.user.oauth.OAuthService
 import byeduck.lunchroom.user.service.UserAuthenticationService
 import byeduck.lunchroom.user.service.UserService
@@ -45,7 +46,7 @@ class UserController(
     ): ResponseEntity<Any> {
         logger.info("Sign in by user \"{}\"", signRequest.nick)
         val confirmation = userAuthenticationService.signIn(signRequest.nick, signRequest.password)
-        setAuthorizationCookies(response, confirmation.userNick, confirmation.token, confirmation.userId)
+        setAuthorizationCookies(response, confirmation.userNick, confirmation.userId, confirmation.token)
         return ResponseEntity(HttpStatus.OK)
     }
 
@@ -56,7 +57,7 @@ class UserController(
     ): ResponseEntity<Any> {
         logger.info("Authorizing user with google oauth")
         val confirmation = googleOAuthService.sign(authorizationCode)
-        setAuthorizationCookies(response, confirmation.userNick, confirmation.token, confirmation.userId)
+        setAuthorizationCookies(response, confirmation.userNick, confirmation.userId, confirmation.token)
         return ResponseEntity(HttpStatus.OK)
     }
 
@@ -68,13 +69,16 @@ class UserController(
             ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
     }
 
-    private fun setAuthorizationCookies(response: HttpServletResponse, userNick: String, token: String, userId: String) {
+    private fun setAuthorizationCookies(
+            response: HttpServletResponse, userNick: String, userId: String, token: AuthorizationToken
+    ) {
         val nickCookie = Cookie(NICK_COOKIE_NAME, userNick)
-        val tokenCookie = Cookie(TOKEN_COOKIE_NAME, token)
+        val tokenCookie = Cookie(TOKEN_COOKIE_NAME, token.data)
         val userIdCookie = Cookie(USER_ID_COOKIE_NAME, userId)
         nickCookie.path = "/"
         tokenCookie.path = "/"
         userIdCookie.path = "/"
+        tokenCookie.maxAge = ((token.expiresOn - System.currentTimeMillis()) / 1000).toInt()
         response.addCookie(nickCookie)
         response.addCookie(tokenCookie)
         response.addCookie(userIdCookie)

@@ -1,6 +1,7 @@
 package byeduck.lunchroom.token.service
 
 import byeduck.lunchroom.error.exceptions.InvalidTokenException
+import byeduck.lunchroom.token.AuthorizationToken
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -17,15 +18,17 @@ class TokenServiceImpl(
         private val tokenValidity: Long
 ) : TokenService {
 
-    override fun generateToken(subject: String): String {
-        val currentMillis = System.currentTimeMillis()
-        return Jwts.builder()
+    override fun generateToken(subject: String): AuthorizationToken {
+        val now = System.currentTimeMillis()
+        val expiresOn = now + tokenValidity
+        val token = Jwts.builder()
                 .setClaims(HashMap<String, Any>() as Map<String, Any>?)
                 .setSubject(subject)
-                .setIssuedAt(Date(currentMillis))
-                .setExpiration(Date(currentMillis + tokenValidity))
+                .setIssuedAt(Date(now))
+                .setExpiration(Date(expiresOn))
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact()
+        return AuthorizationToken(token, expiresOn)
     }
 
     override fun validateToken(token: String, nick: String) {
