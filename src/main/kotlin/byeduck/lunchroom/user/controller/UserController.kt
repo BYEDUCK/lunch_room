@@ -78,6 +78,7 @@ class UserController(
         val nickCookie = Cookie(NICK_COOKIE_NAME, userNick)
         val tokenCookie = Cookie(TOKEN_COOKIE_NAME, token.data)
         val userIdCookie = Cookie(USER_ID_COOKIE_NAME, userId)
+        val isSecure = frontDomain.startsWith("https")
         nickCookie.path = "/"
         tokenCookie.path = "/"
         userIdCookie.path = "/"
@@ -85,6 +86,9 @@ class UserController(
         tokenCookie.domain = frontDomain
         userIdCookie.domain = frontDomain
         tokenCookie.maxAge = ((token.expiresOn - System.currentTimeMillis()) / 1000.0).toInt()
+        tokenCookie.secure = isSecure
+        nickCookie.secure = isSecure
+        userIdCookie.secure = isSecure
         response.addCookie(nickCookie)
         response.addCookie(tokenCookie)
         response.addCookie(userIdCookie)
