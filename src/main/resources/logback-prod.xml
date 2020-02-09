@@ -33,8 +33,4 @@
 		<appender-ref ref="RollingFile"/>
 	</logger>
 
-	<logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="debug" additivity="false">
-		<appender-ref ref="RollingFile"/>
-	</logger>
-
 </configuration>
