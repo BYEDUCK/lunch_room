@@ -54,8 +54,7 @@ class LoggingInterceptor : HandlerInterceptor {
     private fun parseCookiesToString(cookies: Array<Cookie>) = StringBuilder()
             .append("{\n")
             .append(cookies.joinToString("\n") {
-                "\t\"${it.name}\" : \"${if (it.name == TOKEN_COOKIE_NAME) MASK_STRING else it.value}\" " +
-                        "(Secure: ${it.secure}, MaxAge: ${it.maxAge})"
+                "\t\"${it.name}\" : \"${if (it.name == TOKEN_COOKIE_NAME) MASK_STRING else it.value}\""
             })
             .append("\n}")
             .toString()
