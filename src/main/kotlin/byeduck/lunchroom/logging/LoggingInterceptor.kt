@@ -1,5 +1,8 @@
 package byeduck.lunchroom.logging
 
+import byeduck.lunchroom.COOKIE_HEADER_NAME
+import byeduck.lunchroom.MASK_STRING
+import byeduck.lunchroom.TOKEN_COOKIE_NAME
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.servlet.HandlerInterceptor
@@ -51,7 +54,8 @@ class LoggingInterceptor : HandlerInterceptor {
     private fun parseCookiesToString(cookies: Array<Cookie>) = StringBuilder()
             .append("{\n")
             .append(cookies.joinToString("\n") {
-                "\t\"${it.name}\" : \"${it.value}\" (Secure: ${it.secure}, MaxAge: ${it.maxAge})"
+                "\t\"${it.name}\" : \"${if (it.name == TOKEN_COOKIE_NAME) MASK_STRING else it.value}\" " +
+                        "(Secure: ${it.secure}, MaxAge: ${it.maxAge})"
             })
             .append("\n}")
             .toString()
@@ -59,7 +63,7 @@ class LoggingInterceptor : HandlerInterceptor {
     private fun parseHeadersFromRequestToString(request: HttpServletRequest) = StringBuilder()
             .append("{\n")
             .append(request.headerNames.toList().joinToString("\n") {
-                "\t\"$it\" : \"${request.getHeader(it)}\""
+                if (it != COOKIE_HEADER_NAME) "\t\"$it\" : \"${request.getHeader(it)}\"" else ""
             })
             .append("\n}")
             .toString()
