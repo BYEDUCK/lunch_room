@@ -6,10 +6,9 @@ class ErrorCodes {
         const val RESOURCE_ALREADY_EXISTS = 20
         const val INVALID_TOKEN = 30
         const val INVALID_CREDENTIALS = 40
-        const val PAST_DEADLINE = 50
+        const val CONSTRAINT_VIOLATION = 50
         const val UNAUTHORIZED = 60
-        const val UPDATE_WHILE_VOTE = 70
-        const val NOT_ENOUGH_POINTS = 80
+        const val NOT_ENOUGH_POINTS = 70
         const val GENERAL = 100
     }
 }

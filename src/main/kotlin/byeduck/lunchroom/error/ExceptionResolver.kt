@@ -8,9 +8,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
+import javax.validation.ConstraintViolationException
 
 @ControllerAdvice
 class ExceptionResolver {
@@ -54,5 +56,28 @@ class ExceptionResolver {
                 .status(HttpStatus.FORBIDDEN)
                 .body(ErrorMessage(ErrorCodes.UNAUTHORIZED, exception.message))
     }
+
+    @ExceptionHandler(value = [ConstraintViolationException::class, MethodArgumentNotValidException::class])
+    fun handleConstraintViolation(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
+        logger.error("CONSTRAINT VIOLATION: {}", exception.message)
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorMessage(ErrorCodes.CONSTRAINT_VIOLATION, parseConstraintViolationMsg(exception.message)))
+    }
+
+    @ExceptionHandler(value = [Exception::class])
+    fun handleOtherExceptions(exception: Exception, request: WebRequest): ResponseEntity<ErrorMessage> {
+        logger.error("UNEXPECTED EXCEPTION: {}", exception.message)
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ErrorMessage(ErrorCodes.GENERAL, exception.message))
+    }
+
+    private fun parseConstraintViolationMsg(msg: String?) = if (msg != null) {
+        val idx = msg.lastIndexOf("default message [")
+        if (idx > 0) {
+            msg.substring(idx + 17, msg.length - 3)
+        } else msg
+    } else ""
 
 }

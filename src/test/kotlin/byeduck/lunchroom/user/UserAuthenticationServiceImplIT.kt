@@ -26,8 +26,8 @@ internal class UserAuthenticationServiceImplIT {
         val password = "testPassword"
         userService.signUp(nick, password)
         val loggedInUser = userService.signIn(nick, password)
-        assertTrue(loggedInUser.userId?.isNotEmpty()!!)
-        assertTrue(loggedInUser.token.isNotEmpty())
+        assertTrue(loggedInUser.userId.isNotEmpty())
+        assertTrue(loggedInUser.token.data.isNotEmpty())
     }
 
     @Test

@@ -25,7 +25,7 @@ internal class TokenServiceImplIT {
     @DisplayName("Generated token should be valid right away")
     internal fun testValidateCorrectToken() {
         val token = tokenService.generateToken(userNick)
-        assertDoesNotThrow { tokenService.validateToken(token, userNick) }
+        assertDoesNotThrow { tokenService.validateToken(token.data, userNick) }
     }
 
     @Test
@@ -34,13 +34,13 @@ internal class TokenServiceImplIT {
         val validity = tokenValidity.toLong()
         val token = tokenService.generateToken(userNick)
         Thread.sleep(validity + 1)
-        assertThrows<JwtException> { tokenService.validateToken(token, userNick) }
+        assertThrows<JwtException> { tokenService.validateToken(token.data, userNick) }
     }
 
     @Test
     @DisplayName("Token generated for different user should not be valid")
     internal fun testValidateWrongSubjectToken() {
         val token = tokenService.generateToken(userNick)
-        assertThrows<InvalidTokenException> { tokenService.validateToken(token, "differentNick") }
+        assertThrows<InvalidTokenException> { tokenService.validateToken(token.data, "differentNick") }
     }
 }
