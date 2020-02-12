@@ -212,13 +212,16 @@ class RoomServiceImpl(
 
     private fun isBeforeVotePhase(room: Room) = System.currentTimeMillis() <= room.initialDeadline
 
-    private fun drawLunchProposalByVotes(lunchProposals: List<LunchProposal>) = lunchProposals
-            .sortedByDescending { it.votesCount + it.ratingSum }
-            .filter { proposal ->
-                (proposal.ratingSum + proposal.votesCount
-                        ) == (
-                        lunchProposals.first().votesCount + lunchProposals.first().ratingSum)
-            }.random()
+    private fun drawLunchProposalByVotes(lunchProposals: List<LunchProposal>): LunchProposal {
+        val sorted = lunchProposals.sortedByDescending { it.votesCount + it.ratingSum }
+        val first = sorted.first()
+        return sorted.filter { proposal ->
+            (proposal.ratingSum + proposal.votesCount
+                    ) == (
+                    first.votesCount + first.ratingSum)
+        }.random()
+    }
+
 
     private fun addDefaults(roomId: String, ownerId: String) {
         defaultLunchProposalsFactory.getDefaults(roomId, ownerId).forEach {
