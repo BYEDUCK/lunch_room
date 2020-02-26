@@ -21,4 +21,10 @@ data class LunchProposal(
         this.ratingSum += rating
         return this
     }
+
+    fun revote(oldRating: Int, newRating: Int): LunchProposal {
+        this.ratingSum -= oldRating
+        this.ratingSum += newRating
+        return this
+    }
 }
