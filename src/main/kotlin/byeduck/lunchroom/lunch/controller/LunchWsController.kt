@@ -4,8 +4,6 @@ import byeduck.lunchroom.domain.LunchProposal
 import byeduck.lunchroom.error.exceptions.RequiredParameterEmptyException
 import byeduck.lunchroom.lunch.controller.request.LunchRequest
 import byeduck.lunchroom.lunch.controller.request.LunchRequestType
-import byeduck.lunchroom.lunch.controller.response.LunchProposalDTO
-import byeduck.lunchroom.lunch.controller.response.LunchResponse
 import byeduck.lunchroom.lunch.service.LunchService
 import byeduck.lunchroom.room.service.RoomService
 import org.slf4j.Logger

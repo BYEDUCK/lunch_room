@@ -55,15 +55,23 @@ class LunchServiceImpl(
         val roomUserIndex = room.users.indexOf(RoomUser(user))
         val lunchProposal = lunchRepository.findById(proposalId)
         return lunchProposal.map {
-            if (room.users[roomUserIndex].votes.contains(Vote(it.id!!))) {
-                throw AlreadyVotedException()
-            }
             validateUserPoints(rating, room.users[roomUserIndex])
-            room.users[roomUserIndex].votes.add(Vote(it.id!!, rating))
-            room.users[roomUserIndex].points -= rating
+            val voteIndex = room.users[roomUserIndex].votes.indexOf(Vote(it.id!!))
+            val savedProposal: LunchProposal
+            if (voteIndex >= 0) {
+                val oldRating = room.users[roomUserIndex].votes[voteIndex].rating
+                room.users[roomUserIndex].points += oldRating
+                room.users[roomUserIndex].points -= rating
+                room.users[roomUserIndex].votes[voteIndex].rating = rating
+                savedProposal = lunchRepository.save(it.revote(oldRating, rating))
+            } else {
+                room.users[roomUserIndex].votes.add(Vote(it.id!!, rating))
+                room.users[roomUserIndex].points -= rating
+                savedProposal = lunchRepository.save(it.voteFor(rating))
+            }
             roomsRepository.save(room)
             usersRepository.save(user)
-            lunchRepository.save(it.voteFor(rating))
+            return@map savedProposal
         }.orElseThrow { LunchProposalNotFoundException(proposalId) }
     }
 
