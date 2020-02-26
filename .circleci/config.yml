@@ -15,10 +15,6 @@ jobs:
       - run:
           name: Generate failsafe report
           command: ./mvnw surefire-report:failsafe-report-only
-      - store_test_results:
-          paths:
-            - ~/app/target/failsafe-reports/
-            - ~/app/target/surefire-reports/
       - store_artifacts:
           path: ~/app/target/failsafe-reports/
       - store_artifacts:
