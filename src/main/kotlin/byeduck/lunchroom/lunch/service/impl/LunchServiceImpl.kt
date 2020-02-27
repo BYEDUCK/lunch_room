@@ -55,23 +55,10 @@ class LunchServiceImpl(
         val roomUserIndex = room.users.indexOf(RoomUser(user))
         val lunchProposal = lunchRepository.findById(proposalId)
         return lunchProposal.map {
-            validateUserPoints(rating, room.users[roomUserIndex])
-            val voteIndex = room.users[roomUserIndex].votes.indexOf(Vote(it.id!!))
-            val savedProposal: LunchProposal
-            if (voteIndex >= 0) {
-                val oldRating = room.users[roomUserIndex].votes[voteIndex].rating
-                room.users[roomUserIndex].points += oldRating
-                room.users[roomUserIndex].points -= rating
-                room.users[roomUserIndex].votes[voteIndex].rating = rating
-                savedProposal = lunchRepository.save(it.revote(oldRating, rating))
-            } else {
-                room.users[roomUserIndex].votes.add(Vote(it.id!!, rating))
-                room.users[roomUserIndex].points -= rating
-                savedProposal = lunchRepository.save(it.voteFor(rating))
-            }
+            voteFor(it, room.users[roomUserIndex], rating)
             roomsRepository.save(room)
             usersRepository.save(user)
-            return@map savedProposal
+            lunchRepository.save(it)
         }.orElseThrow { LunchProposalNotFoundException(proposalId) }
     }
 
@@ -126,6 +113,27 @@ class LunchServiceImpl(
         msgTemplate.convertAndSend("/room/proposals/$roomId", LunchResponse(total, updated.map {
             LunchProposalDTO.fromLunchProposal(it)
         }))
+    }
+
+    private fun voteFor(proposal: LunchProposal, user: RoomUser, rating: Int) {
+        val ratingDiff: Int
+        val voteIndex = user.votes.indexOf(Vote(proposal.id!!))
+        val firstTimeVoting = voteIndex < 0
+        ratingDiff = if (firstTimeVoting) {
+            rating
+        } else {
+            val oldRating = user.votes[voteIndex].rating
+            rating - oldRating
+        }
+        validateUserPoints(ratingDiff, user)
+        if (firstTimeVoting) {
+            proposal.votesCount++
+            user.votes.add(Vote(proposal.id!!, ratingDiff))
+        } else {
+            user.votes[voteIndex].rating += ratingDiff
+        }
+        user.points -= ratingDiff
+        proposal.ratingSum += ratingDiff
     }
 
     private fun validateProposalInRoom(proposal: LunchProposal, room: Room) {

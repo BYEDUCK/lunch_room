@@ -15,16 +15,4 @@ data class LunchProposal(
 ) {
     constructor(roomId: String, title: String, menuUrl: String, menuItems: List<MenuItem>, proposalOwnerId: String)
             : this(null, roomId, title, menuUrl, menuItems, proposalOwnerId)
-
-    fun voteFor(rating: Int): LunchProposal {
-        this.votesCount++
-        this.ratingSum += rating
-        return this
-    }
-
-    fun revote(oldRating: Int, newRating: Int): LunchProposal {
-        this.ratingSum -= oldRating
-        this.ratingSum += newRating
-        return this
-    }
 }
