@@ -1,5 +1,7 @@
 package byeduck.lunchroom.domain
 
+const val RATING_DELETE = 0
+
 data class Vote(
         var proposalId: String,
         var rating: Int
