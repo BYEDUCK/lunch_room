@@ -55,7 +55,11 @@ class LunchServiceImpl(
         val roomUserIndex = room.users.indexOf(RoomUser(user))
         val lunchProposal = lunchRepository.findById(proposalId)
         return lunchProposal.map {
-            voteFor(it, room.users[roomUserIndex], rating)
+            if (rating == RATING_DELETE) {
+                deleteVote(it, room.users[roomUserIndex])
+            } else {
+                voteFor(it, room.users[roomUserIndex], rating)
+            }
             roomsRepository.save(room)
             usersRepository.save(user)
             lunchRepository.save(it)
@@ -113,6 +117,17 @@ class LunchServiceImpl(
         msgTemplate.convertAndSend("/room/proposals/$roomId", LunchResponse(total, updated.map {
             LunchProposalDTO.fromLunchProposal(it)
         }))
+    }
+
+    private fun deleteVote(proposal: LunchProposal, user: RoomUser) {
+        val voteIndex = user.votes.indexOf(Vote(proposal.id!!))
+        if (voteIndex >= 0) {
+            val rating = user.votes[voteIndex].rating
+            user.points += rating
+            user.votes.removeAt(voteIndex)
+            proposal.ratingSum -= rating
+            proposal.votesCount--
+        }
     }
 
     private fun voteFor(proposal: LunchProposal, user: RoomUser, rating: Int) {

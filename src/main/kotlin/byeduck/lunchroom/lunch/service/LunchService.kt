@@ -26,7 +26,7 @@ interface LunchService {
             @NotBlank(message = USER_ID_CANNOT_BE_EMPTY_MSG) userId: String,
             @NotBlank(message = ROOM_ID_CANNOT_BE_EMPTY_MSG) roomId: String,
             @NotBlank(message = PROPOSAL_ID_CANNOT_BE_EMPTY_MSG) proposalId: String,
-            @Min(value = 0, message = "Rating must be > 0") @Max(value = 6, message = "Rating must be < 6") rating: Int
+            @Min(value = 0, message = "Rating must be >= 0") @Max(value = 6, message = "Rating must be <= 6") rating: Int
     ): LunchProposal
 
     fun findAllByRoomId(
