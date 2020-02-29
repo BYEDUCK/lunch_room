@@ -79,6 +79,7 @@ class LunchWsController(
                         request.userId,
                         request.roomId
                 ))
+                roomService.notifyRoomUsersAboutUserChange(request.roomId)
             }
             LunchRequestType.EDIT -> {
                 logger.info("Editing proposal {} by user {} in room {}", request.proposalId, request.userId, request.roomId)
