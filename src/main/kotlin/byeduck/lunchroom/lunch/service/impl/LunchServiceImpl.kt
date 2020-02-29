@@ -82,7 +82,11 @@ class LunchServiceImpl(
         if (isUserEligibleToModifyProposal(userId, proposal, room)) {
             lunchRepository.delete(proposal)
             room.users.forEach {
-                it.votes.remove(Vote(proposalId))
+                val voteIndex = it.votes.indexOf(Vote(proposalId))
+                if (voteIndex >= 0) {
+                    it.points += it.votes[voteIndex].rating
+                    it.votes.removeAt(voteIndex)
+                }
             }
             roomsRepository.save(room)
         } else {
