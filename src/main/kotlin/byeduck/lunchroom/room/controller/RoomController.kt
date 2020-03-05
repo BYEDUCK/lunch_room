@@ -55,7 +55,15 @@ class RoomController(
 
     @GetMapping(value = ["search"], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ValidateToken
-    fun findRoomByName(
+    fun findRoomsByName(
+            @RequestParam("name") roomName: String, httpRequest: HttpServletRequest
+    ): List<RoomResponse> {
+        return roomService.findRoomByNameLike(roomName).map { RoomResponse.fromRoom(it) }
+    }
+
+    @GetMapping(value = ["byName"])
+    @ValidateToken
+    fun getRoomByName(
             @RequestParam("name") roomName: String, httpRequest: HttpServletRequest
     ): RoomResponse {
         return RoomResponse.fromRoom(roomService.findRoomByName(roomName))

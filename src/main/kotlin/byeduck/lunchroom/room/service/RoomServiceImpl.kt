@@ -79,6 +79,10 @@ class RoomServiceImpl(
         return roomsRepository.findByName(name).orElseThrow { RoomNotFoundException(name) }
     }
 
+    override fun findRoomByNameLike(name: String): List<Room> {
+        return if (name.isBlank()) emptyList() else roomsRepository.findByNameLikeIgnoreCase(name)
+    }
+
     override fun joinRoomById(roomId: String, userId: String): Room {
         val room = roomsRepository.findById(roomId).orElseThrow { RoomNotFoundException(roomId) }
         if (!room.open) {

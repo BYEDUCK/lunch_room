@@ -6,4 +6,5 @@ import java.util.*
 
 interface RoomsRepository : MongoRepository<Room, String> {
     fun findByName(name: String): Optional<Room>
+    fun findByNameLikeIgnoreCase(name: String): List<Room>
 }
