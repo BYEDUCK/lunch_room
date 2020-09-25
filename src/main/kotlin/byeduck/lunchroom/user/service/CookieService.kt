@@ -33,7 +33,7 @@ class CookieService(
     ) = StringBuilder()
             .append("$name=$value;")
             .append(if (maxAge != null) "Max-Age=$maxAge;" else "")
-            .append(if (domain.startsWith("https")) "Secure;" else "")
+            .append(if (domain.contains("byeduck.com")) "Secure;" else "")
             .append("Path=$path;")
             .append("Domain=$domain;")
             .append("SameSite=$sameSite;")
