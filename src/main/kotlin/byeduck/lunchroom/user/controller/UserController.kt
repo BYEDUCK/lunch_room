@@ -1,21 +1,16 @@
 package byeduck.lunchroom.user.controller
 
-import byeduck.lunchroom.NICK_COOKIE_NAME
-import byeduck.lunchroom.TOKEN_COOKIE_NAME
-import byeduck.lunchroom.USER_ID_COOKIE_NAME
-import byeduck.lunchroom.token.AuthorizationToken
 import byeduck.lunchroom.user.oauth.OAuthService
+import byeduck.lunchroom.user.service.CookieService
 import byeduck.lunchroom.user.service.UserAuthenticationService
 import byeduck.lunchroom.user.service.UserService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -29,8 +24,8 @@ class UserController(
         private val userService: UserService,
         @Autowired
         private val googleOAuthService: OAuthService,
-        @Value("\${front.domain}")
-        private val frontDomain: String
+        @Autowired
+        private val cookieService: CookieService
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(UserController::class.java)
@@ -49,7 +44,7 @@ class UserController(
     ): ResponseEntity<Any> {
         logger.info("Sign in by user \"{}\"", signRequest.nick)
         val confirmation = userAuthenticationService.signIn(signRequest.nick, signRequest.password)
-        setAuthorizationCookies(response, confirmation.userNick, confirmation.userId, confirmation.token)
+        cookieService.setAuthorizationCookies(response, confirmation.userNick, confirmation.userId, confirmation.token)
         return ResponseEntity(HttpStatus.OK)
     }
 
@@ -60,7 +55,7 @@ class UserController(
     ): ResponseEntity<Any> {
         logger.info("Authorizing user with google oauth")
         val confirmation = googleOAuthService.sign(authorizationCode)
-        setAuthorizationCookies(response, confirmation.userNick, confirmation.userId, confirmation.token)
+        cookieService.setAuthorizationCookies(response, confirmation.userNick, confirmation.userId, confirmation.token)
         return ResponseEntity(HttpStatus.OK)
     }
 
@@ -70,28 +65,6 @@ class UserController(
             ResponseEntity.status(HttpStatus.OK).build()
         else
             ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build()
-    }
-
-    private fun setAuthorizationCookies(
-            response: HttpServletResponse, userNick: String, userId: String, token: AuthorizationToken
-    ) {
-        val nickCookie = Cookie(NICK_COOKIE_NAME, userNick)
-        val tokenCookie = Cookie(TOKEN_COOKIE_NAME, token.data)
-        val userIdCookie = Cookie(USER_ID_COOKIE_NAME, userId)
-        val isSecure = frontDomain.startsWith("https")
-        nickCookie.path = "/"
-        tokenCookie.path = "/"
-        userIdCookie.path = "/"
-        nickCookie.domain = frontDomain
-        tokenCookie.domain = frontDomain
-        userIdCookie.domain = frontDomain
-        tokenCookie.maxAge = ((token.expiresOn - System.currentTimeMillis()) / 1000.0).toInt()
-        tokenCookie.secure = isSecure
-        nickCookie.secure = isSecure
-        userIdCookie.secure = isSecure
-        response.addCookie(nickCookie)
-        response.addCookie(tokenCookie)
-        response.addCookie(userIdCookie)
     }
 
 }

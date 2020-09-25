@@ -104,6 +104,7 @@ class RoomController(
     }
 
     @PutMapping(value = [""], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ValidateToken
     fun updateRoom(
             @Valid @RequestBody request: UpdateRoomRequest,
             httpRequest: HttpServletRequest,

@@ -25,7 +25,7 @@ class TokenValidator(
         var checked = false
         for (arg in joinPoint.args) {
             if (arg is HttpServletRequest) {
-                validateAuthorizationHeaders(arg.cookies)
+                validateAuthorizationCookies(arg.cookies)
                 checked = true
                 break
             }
@@ -35,7 +35,7 @@ class TokenValidator(
         }
     }
 
-    private fun validateAuthorizationHeaders(cookies: Array<Cookie>) {
+    private fun validateAuthorizationCookies(cookies: Array<Cookie>) {
         var userNick: String? = null
         var token: String? = null
         for (cookie in cookies) {
